@@ -1,0 +1,231 @@
+/* ===== Hero Section ===== */
+.hero {
+  background-color: #1a1a1a;
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  color: white;
+}
+
+.hero h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  color: #aaa;
+  margin: 0.75rem auto 1.5rem;
+  max-width: 500px;
+}
+
+.search-form {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+}
+
+.search-form input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border: none;
+  background: white;
+  color: #333;
+  font-size: 1rem;
+}
+
+.search-form input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #60ee84;
+}
+
+.search-button {
+  background-color: #e50914;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background-color: #f40612;
+}
+
+.category-pills {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+}
+
+.pill {
+  background-color: #2a2a2a;
+  color: #ddd;
+  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.pill:hover {
+  background-color: #3a3a3a;
+}
+
+.pill.active {
+  background-color: #60ee84;
+  color: #111;
+}
+
+/* ===== Body Layout ===== */
+.home {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #1a1a1a;
+  min-height: 100vh;
+  color: white;
+  box-sizing: border-box;
+}
+
+/* ===== Filter Sidebar ===== */
+.filter-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  border: 2px solid 
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.filter-header h4 {
+  font-size: 1rem;
+}
+
+.reset {
+  color: #60ee84;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 30px;
+}
+
+.filter-group {
+  margin-bottom: 1.5rem;
+  padding:20px;
+}
+
+.filter-group h5 {
+  color: #999;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.filter-group label {
+  display: block;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #ddd;
+  cursor: pointer;
+}
+
+.filter-group input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+/* ===== Job Results ===== */
+.job-results {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.results-header p {
+  color: #ccc;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-toggle button {
+  background: #2a2a2a;
+  color: #ccc;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.view-toggle button.active {
+  background-color: #60ee84;
+  color: #111;
+}
+
+.error-text {
+  color: #ff4757;
+  margin-bottom: 1rem;
+}
+
+.loading-text {
+  color: #999;
+  margin-bottom: 1rem;
+}
+
+/* ===== Jobs Grid ===== */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .home {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+
+  .filter-sidebar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 639px) {b
+  .hero {
+    padding: 2rem 1rem 1.5rem;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .search-form {
+    flex-direction: column;
+  }
+}
