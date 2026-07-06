@@ -31,8 +31,8 @@ function JobCard({ job, onViewDetails }) {
 
       <div className="job-info">
         <h3>{job.title}</h3>
-        <p className="company">{job.company_name}</p>
-
+        <p className="company">Posted at: {job.posted_at}</p>
+        <p className="company">Deadline: {job.deadline}</p>
         <div className="job-meta">
           <span className="location">📍 {job.location}</span>
           {job.salary_range && <span className="salary">💲 {job.salary_range}</span>}

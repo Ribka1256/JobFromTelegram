@@ -166,7 +166,7 @@ function Home() {
           <div className="results-header">
             <p>Showing {filteredJobs.length} jobs available</p>
             <div className="view-toggle">
-              <button className="active">Poster Grid</button>
+              <button className="active"> Available Jobs</button>
             </div>
           </div>
 
