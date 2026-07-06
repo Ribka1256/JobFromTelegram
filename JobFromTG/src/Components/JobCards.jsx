@@ -47,24 +47,13 @@ function JobCard({ job, onViewDetails }) {
 
         <button
           className="apply-btn"
-           onClick={() => {
-    if (job.share_link) {
-     const tgWeb = job.share_link;
-      const parts = tgWeb.replace("https://t.me/", "").split("/");
-      const channel = parts[0];
-      const postId = parts[1];
-     if (channel && postId) {
-        window.location.href = `tg://resolve?domain=${channel}&post=${postId}`;
-        setTimeout(() => {
-          window.open(tgWeb, "_blank");
-        }, 2000);
-      } else {
-        window.open(tgWeb, "_blank");
-      }
-    } else {
-      navigate('/apply', { state: { job } });
-    }
-  }}
+    onClick={() => {
+  if (job.share_link) {
+    window.open(job.share_link, "_blank");
+  } else {
+    navigate('/apply', { state: { job } });
+  }
+}}
 >
           Apply Now
         </button>

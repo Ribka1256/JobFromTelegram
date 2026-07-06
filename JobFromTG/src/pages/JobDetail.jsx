@@ -113,13 +113,13 @@ function JobDetail({ job: jobProp, onClose }) {
           </button>
           <button
             className="jd-apply-btn"
-            onClick={() => {
-    if (job.share_link) {
-      window.open(job.share_link, "_blank");
-    } else {
-      navigate("/apply", { state: { job } });
-    }
-  }}
+             onClick={() => {
+  if (job.share_link) {
+    window.open(job.share_link, "_blank");
+  } else {
+    navigate('/apply', { state: { job } });
+  }
+}}
 >
             Apply Now ↗
           </button>

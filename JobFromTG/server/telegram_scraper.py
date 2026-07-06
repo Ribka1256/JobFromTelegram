@@ -56,6 +56,7 @@ def parse_job(message, channel):
             location = line.split(":", 1)[-1].strip()
         if any(k in low for k in ["deadline:", "closing date:", "apply before:", "due date:"]):
             deadline = line.split(":", 1)[-1].strip()
+    channel_username = channel.replace("https://t.me/", "").strip("/")
 
     return {
         "id": str(message.id),
@@ -65,8 +66,7 @@ def parse_job(message, channel):
         "description": text,
         "posted_at": message.date.strftime("%Y-%m-%d"),
         "deadline": deadline,
-        "share_link": f"https://t.me/{channel}/{message.id}",
+        "share_link": f"https://t.me/{channel_username}/{message.id}",  # ← includes post ID
         "source": "telegram",
     }
-
 asyncio.run(scrape())
