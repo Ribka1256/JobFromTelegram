@@ -47,7 +47,13 @@ function JobCard({ job, onViewDetails }) {
 
         <button
           className="apply-btn"
-          onClick={() => navigate('/apply', { state: { job } })}
+           onClick={() => {
+    if (job.share_link) {
+      window.open(job.share_link, "_blank");
+    } else {
+      navigate("/apply", { state: { job } });
+    }
+  }}
         >
           Apply Now
         </button>
