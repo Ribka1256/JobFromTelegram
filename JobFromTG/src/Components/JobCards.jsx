@@ -2,8 +2,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useJobContext } from '../Components/JobContext.jsx';
 import '../css/JobCard.css';
-
-
+import { FaBookmark, FaSearch, FaHeart } from "react-icons/fa";
+import { BsBookmarkFill, BsHeartFill } from "react-icons/bs";
+import { MdHome, MdBookmark } from "react-icons/md";
 function JobCard({ job, onViewDetails }) {
   const navigate = useNavigate();
   const { addFavorite, removeFromFavorite, isFavorite, getJobKey } = useJobContext();
@@ -25,8 +26,8 @@ function JobCard({ job, onViewDetails }) {
         <button
           className={`favorite-btn ${favorited ? "active" : ""}`}
           onClick={toggleFavorite}
-        >
-          {favorited ? <i class="fa-solid fa-bookmark"></i> : "🤍"}
+        >Saved
+          {favorited ? <BsBookmarkFill /> : <MdBookmark />}
         </button>
       </div>
 
@@ -47,19 +48,13 @@ function JobCard({ job, onViewDetails }) {
   </div>
 </div>
         </div>
-
-        <button
-          className="detail-link"
-          onClick={() => onViewDetails(job)}
-        >
-       <button
+       <p
   className="detail-link"
   onClick={() => onViewDetails(job)}
 >
   {job.description.match(/Description:\s*([\s\S]*?)\n\n[A-Z].*/)?.[1] || "No description"}
-</button>
-        </button>
-
+</p>
+<div className="job-actions">
         <button
           className="apply-btn"
     onClick={() => {
@@ -72,6 +67,7 @@ function JobCard({ job, onViewDetails }) {
 >
           Apply Now
         </button>
+        </div>
       </div>
   );
 }

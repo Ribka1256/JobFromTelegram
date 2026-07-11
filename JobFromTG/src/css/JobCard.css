@@ -26,13 +26,12 @@
    HEADER (badge + company name)
 ========================== */
 .job-poster {
-  border:3px solid;
   position: relative;
   padding: 18px 55px 14px 18px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: transparent;
+  background-color:rgb(97, 96, 96);
   height: auto;
   border-radius: 30px;
 }
@@ -127,7 +126,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
-  margin-bottom: 16px;
 }
 
 .job-meta div {
@@ -159,30 +157,31 @@
 /* ==========================
    DESCRIPTION
 ========================== */
-.job-description {
-  background: rgba(255, 255, 255, 0.08);   /* subtle tint instead of solid white */
-  border: 1px solid rgba(255, 255, 255, 0.15);  /* soft border instead of hard gray */
-  color: rgba(255, 255, 255, 0.85);        /* light text so it's readable on dark bg */
-  border-radius: 10px;
-  padding: 12px 14px;
-}
-.detail-link {
-  background: rgba(255, 255, 255, 0.08);   /* subtle tint instead of solid white */
-  border: 1px solid rgba(255, 255, 255, 0.15);  /* soft border instead of hard gray */
-  color: rgba(255, 255, 255, 0.85);        /* light text so it's readable on dark bg */
-  border-radius: 10px;
-  padding: 12px 14px;
+.detail-link{
+  text-decoration: none;
+  color: #8b8a8a;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: block;
+  margin-bottom: 16px;
+  padding: 0 18px;
+
 }
 /* ==========================
    APPLY BUTTON
 ========================== */
+.job-actions{
+  display: flex;
+  justify-content: center;
+  padding-bottom: 20px;
+}
 .apply-btn {
   width: 200px;
   text-align: center;
-  background: #d8d5ca;
-  color: #222;
+  background: #353534;
+  color: white;
   border: none;
-  padding: 13px;
+  padding: 13px 20px;
   border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 700;
