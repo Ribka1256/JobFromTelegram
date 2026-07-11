@@ -105,6 +105,7 @@ function Home() {
 
         <form onSubmit={handleSubmit} className="search-form">
           <input
+          className="search-input"
             type="text"
             placeholder="search for jobs..."
             value={searchQuery}

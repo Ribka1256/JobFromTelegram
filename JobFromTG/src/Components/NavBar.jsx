@@ -12,8 +12,7 @@ function Navbar() {
         </Link>
 
         <div className="navbar-links">
-          <Link to="/" className="nav-link active">Home</Link>
-          <Link to="/favorite" className="nav-link">Favorite</Link>
+          <Link to="/favorite" className="nav-link"><i class="fa-solid fa-bookmark"></i> Saved post</Link>
          
         </div>
 

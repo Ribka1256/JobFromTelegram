@@ -1,150 +1,214 @@
-/* JobCard.css */
+/* ==========================
+   JOB CARD
+========================== */
 .job-card {
-  border-radius: 14px;
+  width: 400px;
+  border-radius: 18px;
   overflow: hidden;
-  background: #fff;
+  background: linear-gradient(
+    180deg,
+    #2b3245 0%,
+    #1f3a2e 55%,
+    #1c8a45 100%
+  );
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  transition: 0.3s;
+  color: white;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .job-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  transform: translateY(-8px);
 }
 
-/* Poster */
+/* ==========================
+   HEADER (badge + company name)
+========================== */
 .job-poster {
+  border:3px solid;
   position: relative;
-  height: 130px;
-  width: 100%;
-  background: linear-gradient(135deg, #fdf6ec, #524949);
+  padding: 18px 55px 14px 18px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  background: transparent;
+  height: auto;
+  border-radius: 30px;
 }
 
 .job-poster img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   object-fit: cover;
+  background: white;
+  padding: 4px;
+  flex-shrink: 0;
 }
 
+/* company placeholder / icon badge */
 .poster-placeholder {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #111;
-  color: #f0c987;
-  font-size: 1.4rem;
-  font-weight: 800;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #16b955;
+  color: #fff;
   display: flex;
-  align-items: center;
   justify-content: center;
-}
-
-.favorite-btn {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.856);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.2s;
-}
-
-.favorite-btn:hover {
-  transform: scale(1.1);
-}
-
-.favorite-btn.active {
-  background-color: #ffe1e6;
-}
-
-/* Info section */
-.job-info {
-  padding: 1.1rem 1.2rem 1.3rem;
-  background: linear-gradient(180deg, #5e4e47, #4fad4f);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.job-info h3 {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color:white;
-  line-height: 1.3;
+  font-size: 18px;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
 .company {
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   color: #fff;
-  opacity: 0.85;
+  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 0;
 }
 
-.job-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-  color: #fff;
-  margin: 0.2rem 0 0.3rem;
-}
-
-.detail-link {
-  background: none;
+/* ==========================
+   SAVE BUTTON
+========================== */
+.favorite-btn {
+  position: absolute;
+  top: 18px;
+  right: 16px;
+  background: #eceff3;
+  color: #222;
   border: none;
-  text-align: left;
-  padding: 0;
-  color: #a91dae;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-decoration: underline;
-  cursor: pointer;
-  width: fit-content;
-}
-
-.detail-link:hover {
-  color: #15307e;
-}
-
-.apply-btn {
-  margin-top: 0.4rem;
-  background-color: #111;
-  color: #fff;
-  padding: 0.7rem;
   border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  border: none;
+  padding: 7px 12px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.15s;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.favorite-btn:hover {
+  background: #ffffff;
+}
+
+.favorite-btn.active {
+  background: #16233f;
+  color: #fff;
+}
+
+/* ==========================
+   INFO
+========================== */
+.job-info {
+  padding: 4px 20px 22px;
+  background: transparent;
+}
+
+.job-info h3 {
+  font-size: 1.4rem;
+  line-height: 1.25;
+  margin-bottom: 16px;
+  font-weight: 550;
+  color: white;
+}
+
+/* ==========================
+   META ROW (dividers, not boxes)
+========================== */
+.job-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.job-meta div {
+  padding-left: 18px;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.job-meta div:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.job-meta strong {
+  display: block;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+
+.job-meta span {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+/* ==========================
+   DESCRIPTION
+========================== */
+.job-description {
+  background: rgba(255, 255, 255, 0.08);   /* subtle tint instead of solid white */
+  border: 1px solid rgba(255, 255, 255, 0.15);  /* soft border instead of hard gray */
+  color: rgba(255, 255, 255, 0.85);        /* light text so it's readable on dark bg */
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.detail-link {
+  background: rgba(255, 255, 255, 0.08);   /* subtle tint instead of solid white */
+  border: 1px solid rgba(255, 255, 255, 0.15);  /* soft border instead of hard gray */
+  color: rgba(255, 255, 255, 0.85);        /* light text so it's readable on dark bg */
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+/* ==========================
+   APPLY BUTTON
+========================== */
+.apply-btn {
+  width: 200px;
+  text-align: center;
+  background: #d8d5ca;
+  color: #222;
+  border: none;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+  justify-content: center;
+  align-self: center;
 }
 
 .apply-btn:hover {
-  background-color: #2a2a2a;
-  transform: translateY(-1px);
+  background: white;
 }
 
+/* ==========================
+   MOBILE
+========================== */
 @media (max-width: 768px) {
-  .job-info {
-    padding: 0.9rem 1rem 1.1rem;
+  .job-card {
+    width: 100%;
   }
 
-  .favorite-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
+  .job-info h3 {
+    font-size: 1.2rem;
+  }
+
+  .job-poster {
+    padding: 16px 50px 12px 16px;
   }
 }

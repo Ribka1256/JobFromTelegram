@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useJobContext } from '../Components/JobContext.jsx';
 import '../css/JobCard.css';
 
+
 function JobCard({ job, onViewDetails }) {
   const navigate = useNavigate();
   const { addFavorite, removeFromFavorite, isFavorite, getJobKey } = useJobContext();
@@ -25,24 +26,38 @@ function JobCard({ job, onViewDetails }) {
           className={`favorite-btn ${favorited ? "active" : ""}`}
           onClick={toggleFavorite}
         >
-          {favorited ? "❤️" : "🤍"}
+          {favorited ? <i class="fa-solid fa-bookmark"></i> : "🤍"}
         </button>
       </div>
 
       <div className="job-info">
         <h3>{job.title}</h3>
-        <p className="company">Posted at: {job.posted_at}</p>
-        <p className="company">Deadline: {job.deadline}</p>
-        <div className="job-meta">
-          <span className="location">📍 {job.location}</span>
-          {job.salary_range && <span className="salary">💲 {job.salary_range}</span>}
+       <div className="job-meta">
+  <div>
+    <strong>Posted At</strong>
+    <span>{job.posted_at}</span>
+  </div>
+  <div>
+    <strong>Location</strong>
+    <span>{job.location}</span>
+  </div>
+  <div>
+    <strong>Deadline</strong>
+    <span>{job.deadline}</span>
+  </div>
+</div>
         </div>
 
         <button
           className="detail-link"
           onClick={() => onViewDetails(job)}
         >
-          Job Description →
+       <button
+  className="detail-link"
+  onClick={() => onViewDetails(job)}
+>
+  {job.description.match(/Description:\s*([\s\S]*?)\n\n[A-Z].*/)?.[1] || "No description"}
+</button>
         </button>
 
         <button
@@ -58,7 +73,6 @@ function JobCard({ job, onViewDetails }) {
           Apply Now
         </button>
       </div>
-    </div>
   );
 }
 export default JobCard;
