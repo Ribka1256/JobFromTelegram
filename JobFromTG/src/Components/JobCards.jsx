@@ -2,7 +2,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useJobContext } from '../Components/JobContext.jsx';
 import '../css/JobCard.css';
-import { FaBookmark, FaSearch, FaHeart } from "react-icons/fa";
+import { FaBriefcase } from "react-icons/fa";
+import { BsBriefcaseFill } from "react-icons/bs";
 import { BsBookmarkFill, BsHeartFill } from "react-icons/bs";
 import { MdHome, MdBookmark } from "react-icons/md";
 function JobCard({ job, onViewDetails }) {
@@ -20,9 +21,7 @@ function JobCard({ job, onViewDetails }) {
   return (
     <div className="job-card">
       <div className="job-poster">
-        {job.image ? <img src={job.image} alt={job.title} /> : (
-          <div className="poster-placeholder">{job.company_name?.[0] || "J"}</div>
-        )}
+  <BsBriefcaseFill size={35} color="#21854a" />
         <button
           className={`favorite-btn ${favorited ? "active" : ""}`}
           onClick={toggleFavorite}

@@ -30,6 +30,8 @@
 }
 
 .navbar-links {
+  
+  box-border: 1px solid #e6e6e6;
   display: flex;
   align-items: right;
   gap: 1.75rem;
@@ -38,6 +40,9 @@
 }
 
 .nav-link {
+  background-color: #14243f;
+  padding: 1rem 3rem;
+  border-radius: 10px;
   color: white;
   font-weight: 800;
   font-size: 1.2rem;

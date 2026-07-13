@@ -1,7 +1,10 @@
 // Navbar.jsx
 import { Link } from "react-router-dom";
 import '../css/Navbar.css';
-
+import { FaBriefcase } from "react-icons/fa";
+import { BsBriefcaseFill } from "react-icons/bs";
+import { BsBookmarkFill, BsHeartFill } from "react-icons/bs";
+import { MdHome, MdBookmark } from "react-icons/md";
 function Navbar() {
   return (
     <div className="navbar-wrapper">
@@ -12,7 +15,7 @@ function Navbar() {
         </Link>
 
         <div className="navbar-links">
-          <Link to="/favorite" className="nav-link"><i class="fa-solid fa-bookmark"></i> Saved post</Link>
+          <Link to="/favorite" className="nav-link"><MdBookmark /> Saved post</Link>
          
         </div>
 
