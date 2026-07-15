@@ -89,7 +89,6 @@
   color: #111;
 }
 
-/* ===== Body Layout ===== */
 .home {
   display: flex;
   gap: 2rem;
@@ -100,7 +99,6 @@
   box-sizing: border-box;
 }
 
-/* ===== Job Results ===== */
 .job-results {
   flex: 1;
   min-width: 0;
@@ -153,13 +151,11 @@
 /* ===== Jobs Grid ===== */
 .movies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   align-items: start;
-  max-width: 1100px;   /* NEW: caps total width so it never grows past ~3 columns */
-  margin: 0 auto;       /* center it within .job-results */
+  width: 100%;
 }
-
 .movies-grid > * {
   min-width: 0;
 }
@@ -245,6 +241,11 @@
   cursor: pointer;
 }
 /* ===== Responsive ===== */
+@media (max-width: 1300px) {
+  .movies-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 @media (max-width: 900px) {
   .home {
     flex-direction: column;
@@ -253,6 +254,9 @@
 
   .filter-sidebar {
     width: 100%;
+  }
+  .movies-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -267,6 +271,9 @@
 
   .search-form {
     flex-direction: column;
+  }
+  .movies-grid {
+    grid-template-columns: 1fr;
   }
 }
 /* ===== Filter Sidebar — Mobile ===== */

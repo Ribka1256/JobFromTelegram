@@ -41,18 +41,19 @@
 
 .nav-link {
   background-color: #14243f;
-  padding: 1rem 3rem;
+  padding: 15px 20px;
   border-radius: 10px;
   color: white;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 1.2rem;
   text-decoration: none;
-  padding-bottom: 0.3rem;
+  justify-content: center;
+  align-items: center;
 }
 
 
 .nav-link:hover {
-  color: #2563eb;
+  color: #2a3b5f;
 }
 
 .get-started-btn {
