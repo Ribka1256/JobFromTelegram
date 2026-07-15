@@ -21,7 +21,8 @@ function JobCard({ job, onViewDetails }) {
   return (
     <div className="job-card">
       <div className="job-poster">
-  <BsBriefcaseFill size={35} color="#21854a" />
+        <div className="briefcase-icon">
+  <BsBriefcaseFill className = "Icon" size={35} color="green"  /></div>
         <button
           className={`favorite-btn ${favorited ? "active" : ""}`}
           onClick={toggleFavorite}

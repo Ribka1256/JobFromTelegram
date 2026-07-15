@@ -1,6 +1,6 @@
 import Home from "./pages/Home.jsx";
 import Fav from "./pages/Fav.jsx";
-import JobDetail from "./pages/JobDetail.jsx"
+import { FilterProvider } from "./Components/FilterContext.jsx";
 import NavBar from './Components/NavBar.jsx'
 import {JobProvider} from './Components/JobContext.jsx'
 import {Routes, Route} from 'react-router-dom'
@@ -8,13 +8,13 @@ function App() {
   return (
     <JobProvider>
     <main>
-      
+      <FilterProvider>
       <NavBar/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/favorite" element={<Fav />} />
-        <Route path="/detail" element={<JobDetail/>}/>
       </Routes>
+      </FilterProvider>
     </main>
     </JobProvider>
   );

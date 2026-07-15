@@ -100,56 +100,6 @@
   box-sizing: border-box;
 }
 
-/* ===== Filter Sidebar ===== */
-.filter-sidebar {
-  width: 250px;
-  flex-shrink: 0;
-  border: 2px solid #444;
-}
-
-.filter-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-}
-
-.filter-header h4 {
-  font-size: 1rem;
-}
-
-.reset {
-  color: #60ee84;
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: 800;
-  padding: 30px;
-}
-
-.filter-group {
-  margin-bottom: 1.5rem;
-  padding:20px;
-}
-
-.filter-group h5 {
-  color: #999;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.filter-group label {
-  display: block;
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
-  color: #ddd;
-  cursor: pointer;
-}
-
-.filter-group input[type="checkbox"] {
-  margin-right: 0.5rem;
-}
-
 /* ===== Job Results ===== */
 .job-results {
   flex: 1;
@@ -203,10 +153,97 @@
 /* ===== Jobs Grid ===== */
 .movies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
+  align-items: start;
+  max-width: 1100px;   /* NEW: caps total width so it never grows past ~3 columns */
+  margin: 0 auto;       /* center it within .job-results */
 }
 
+.movies-grid > * {
+  min-width: 0;
+}
+.filter-hamburger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background:transparent;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 12px 0 12px 12px;
+  height: fit-content;
+}
+
+.filter-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}
+
+.filter-sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;   /* off-screen by default */
+  width: 260px;
+  height: 100vh;
+  background: #1c1f24;
+  color: #fff;
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 999;
+  overflow-y: auto;
+}
+
+.filter-sidebar.open {
+  left: 0;        /* slides in when open */
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-filter {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.filter-header-sub {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.reset {
+  color: #6ee7b7;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group h5 {
+  color: #9ca3af;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
   .home {
@@ -230,5 +267,64 @@
 
   .search-form {
     flex-direction: column;
+  }
+}
+/* ===== Filter Sidebar — Mobile ===== */
+@media (max-width: 639px) {
+  .filter-sidebar {
+    width: 85%;          /* not full-bleed, leaves a peek of the page */
+    max-width: 320px;    /* caps it on larger phones */
+    left: -100%;         /* fully off-screen when closed */
+    padding: 16px;
+  }
+
+  .filter-sidebar.open {
+    left: 0;
+  }
+
+  .filter-header h4 {
+    font-size: 1rem;
+  }
+
+  .close-filter {
+    font-size: 22px;     /* bigger tap target on mobile */
+    padding: 4px 8px;
+  }
+
+  .filter-group h5 {
+    font-size: 16px;     /* your desktop CSS has this at 22px — too big for phone */
+  }
+
+  .filter-group label {
+    font-size: 15px;     /* desktop is 20px — scale down for mobile */
+  }
+
+  .filter-backdrop {
+    background: rgba(0, 0, 0, 0.6); /* slightly darker for better contrast on small screens */
+  }
+}
+/* ===== Filter Sidebar — Mobile: back to fixed drawer ===== */
+@media (max-width: 900px) {
+  .filter-sidebar {
+    position: fixed;     /* restore drawer behavior */
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    z-index: 999;
+    transition: left 0.3s ease;
+  }
+
+  .filter-sidebar.open {
+    left: 0;
+  }
+
+  .filter-backdrop {
+    display: block;      /* restore backdrop on mobile */
+  }
+
+  .filter-hamburger {
+    display: flex;        /* restore hamburger on mobile */
   }
 }

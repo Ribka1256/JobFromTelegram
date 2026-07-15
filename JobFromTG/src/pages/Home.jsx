@@ -5,7 +5,7 @@ import JobDetail from './JobDetail.jsx';
 import '../css/Home.css';
 import { searchJobs, getJobs } from "../service/api";
 import { getJobCategory, getJobType, getExperienceLevel } from "../utils/categorize.js";
-
+import { useFilter } from "../Components/FilterContext";
 const categories = ["All", "Engineering", "Design", "Marketing", "Content", "Data Science", "Service"];
 
 function Home() {
@@ -17,6 +17,7 @@ function Home() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobTypeFilters, setJobTypeFilters] = useState([]);
   const [experienceFilters, setExperienceFilters] = useState([]);
+  const {showFilters, setShowFilters }= useFilter();
   const navigate = useNavigate();
 
   // Tag each job with derived fields
@@ -105,7 +106,7 @@ function Home() {
 
         <form onSubmit={handleSubmit} className="search-form">
           <input
-          className="search-input"
+            className="search-input"
             type="text"
             placeholder="search for jobs..."
             value={searchQuery}
@@ -126,19 +127,24 @@ function Home() {
           ))}
         </div>
       </div>
+       <div className="home">
+        {showFilters && (
+          <div className="filter-backdrop" onClick={() => setShowFilters(false)} />
+        )}
 
-      <div className="home">
-        <aside className="filter-sidebar">
+        <aside className={`filter-sidebar ${showFilters ? "open" : ""}`}>
           <div className="filter-header">
-            <h4>🔻 Filter Listings</h4>
-            <span className="reset" onClick={handleReset}>Reset</span>
+            <h4>FILTER 🔻</h4>
+            <span className="close-filter" onClick={() => setShowFilters(false)}>✕</span>
           </div>
+
 
           <div className="filter-group">
             <h5>JOB TYPE</h5>
             {["Full-time", "Part-time", "Contract", "Remote", "Internship"].map((t) => (
               <label key={t}>
                 <input
+                className="check"
                   type="checkbox"
                   checked={jobTypeFilters.includes(t)}
                   onChange={() => toggleJobType(t)}
@@ -176,15 +182,12 @@ function Home() {
 
           <div className="movies-grid">
             {filteredJobs.map((job) => (
-              <JobCard
-                key={job.share_link}
-                job={job}
-                onViewDetails={setSelectedJob}
-              />
+              <JobCard key={job.share_link} job={job} onViewDetails={setSelectedJob} />
             ))}
           </div>
         </div>
       </div>
+   
 
       {selectedJob && (
         <JobDetail job={selectedJob} onClose={() => setSelectedJob(null)} />

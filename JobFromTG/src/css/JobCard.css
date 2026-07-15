@@ -2,7 +2,8 @@
    JOB CARD
 ========================== */
 .job-card {
-  width: 400px;
+  width: 100%;        /* fill the grid cell instead of forcing 400px */
+  max-width: 800px;   /* optional: caps how wide it gets on very wide columns */
   border-radius: 18px;
   overflow: hidden;
   background: linear-gradient(
@@ -35,7 +36,27 @@
   height: auto;
   border-radius: 30px;
 }
+.Icon{
+  background-color: gray;
+  padding:10px ;
+  border-radius: 100px;
 
+}
+.briefcase-icon {
+  display: inline-flex;
+  background: linear-gradient(
+    180deg,
+    #232731 0%,
+    #1f3a2e 55%,
+    #1c8a45 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  background-clip: text;
+  color: transparent;
+}
 .job-poster img {
   width: 44px;
   height: 44px;
@@ -209,9 +230,6 @@
    MOBILE
 ========================== */
 @media (max-width: 768px) {
-  .job-card {
-    width: 100%;
-  }
 
   .job-info h3 {
     font-size: 1.2rem;

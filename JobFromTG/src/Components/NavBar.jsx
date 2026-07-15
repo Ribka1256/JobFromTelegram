@@ -1,14 +1,19 @@
-// Navbar.jsx
 import { Link } from "react-router-dom";
 import '../css/Navbar.css';
-import { FaBriefcase } from "react-icons/fa";
-import { BsBriefcaseFill } from "react-icons/bs";
-import { BsBookmarkFill, BsHeartFill } from "react-icons/bs";
-import { MdHome, MdBookmark } from "react-icons/md";
+import { MdBookmark } from "react-icons/md";
+import { HiMenu } from "react-icons/hi";
+import { useFilter } from "../Components/FilterContext";
+
 function Navbar() {
+  const { setShowFilters } = useFilter();
+
   return (
     <div className="navbar-wrapper">
       <nav className="navbar">
+        <button className="filter-hamburger" onClick={() => setShowFilters(true)}>
+          <HiMenu size={20} /> Filter
+        </button>
+
         <Link to="/" className="navbar-brand">
           <span className="brand-icon">🏢</span>
           JobSearch
@@ -16,10 +21,7 @@ function Navbar() {
 
         <div className="navbar-links">
           <Link to="/favorite" className="nav-link"><MdBookmark /> Saved post</Link>
-         
         </div>
-
-    
       </nav>
     </div>
   );
