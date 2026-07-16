@@ -23,6 +23,10 @@ function JobCard({ job, onViewDetails }) {
       <div className="job-poster">
         <div className="briefcase-icon">
   <BsBriefcaseFill className = "Icon" size={35} color="green"  /></div>
+  <p className="job">{
+  job.description.match(/\n\n(.+?)\n(?:Verified Company|Private Client)/)?.[1]?.trim() ||
+  "Unknown Company"
+}</p>
         <button
           className={`favorite-btn ${favorited ? "active" : ""}`}
           onClick={toggleFavorite}

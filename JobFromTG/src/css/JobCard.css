@@ -42,6 +42,13 @@
   border-radius: 100px;
 
 }
+.job {
+  font-size: 20px;
+  color:rgb(212, 210, 210);
+  font-weight: 500;
+  margin-top: 10px;
+  margin-left: 0px;
+}
 .briefcase-icon {
   display: inline-flex;
   background: linear-gradient(
