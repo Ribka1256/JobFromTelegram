@@ -4,36 +4,41 @@
   text-align: center;
   padding: 3rem 1rem 2rem;
   color: white;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
 }
 
 .hero h1 {
-  font-size: 4.6rem;
+  font-size: 5.4rem;
   font-weight: 520;
   margin-bottom: 0.5rem;
+  margin-top: 30px;
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  text-transform: uppercase;
 }
 
 .hero p {
   color: #aaa;
-  margin: 0.75rem auto 1.5rem;
-  max-width: 500px;
+  margin: 0.5rem auto 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 800px;
 }
 
 .search-form {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  max-width: 600px;
+  max-width: 780px;
   margin: 0 auto 1.5rem;
   padding: 0 1rem;
 }
 
 .search-form input {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.6rem;
   border-radius: 4px;
   border: none;
-  background:grey;
+  background:rgb(87, 87, 87);
   color: white;
   font-size: 1rem;
 }
@@ -48,15 +53,23 @@
   color: white;
   padding: 1rem 2.5rem;
   border-radius: 10px;
-  font-weight: 300;
+  font-weight: 600;
+  font-size: 1.25rem;
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.2s;
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out,
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 }
 
 .search-button:hover {
-  background-color: #f40612;
+  background-color: #143b7e;
+  color: white;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .category-pills {
@@ -70,9 +83,9 @@
 .pill {
   background-color: #14243f;
   color: #ddd;
-  border-radius: 10px;
-  padding: 0.5rem 1.2rem;
-  font-weight: 300;
+  border-radius: 80px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
   border: none;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
@@ -82,10 +95,14 @@
 }
 .pill:hover {
   background-color: #3a3a3a;
+  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 .pill.active {
-  background-color: #60ee84;
+  transform: translateY(-2px) scale(1.05);
+  transition: all 0.4s ease-in-out;
+  box-shadow:  0 2px 4px rgba(14, 209, 3, 0.432);
+  background-color: #3cce61;
   color: #111;
 }
 
@@ -114,7 +131,16 @@
 }
 
 .results-header p {
-  color: #ccc;
+  border: 1px solid #444;
+  padding: 0.5rem 1rem;
+  background-color: #60ee84;
+  color: #111;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(14, 209, 3, 0.432);
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
 .view-toggle {
@@ -162,16 +188,13 @@
 .filter-hamburger {
   display: flex;
   align-items: center;
-  gap: 6px;
   background:transparent;
   color: #fff;
   border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  margin: 12px 0 12px 12px;
   height: fit-content;
+  margin-right: -30px;
 }
 
 .filter-backdrop {
@@ -187,6 +210,7 @@
   left: -280px;   /* off-screen by default */
   width: 260px;
   height: 100vh;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
   background: #1c1f24;
   color: #fff;
   padding: 20px;

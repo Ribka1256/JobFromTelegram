@@ -11,16 +11,16 @@ function Navbar() {
     <div className="navbar-wrapper">
       <nav className="navbar">
         <button className="filter-hamburger" onClick={() => setShowFilters(true)}>
-          <HiMenu size={30} /> Filter
+          <HiMenu size={30} />
         </button>
 
         <Link to="/" className="navbar-brand">
-          <span className="brand-icon">🏢</span>
-          JobFind
+          <img src="src/assets/logo.png" alt="Logo" className="navbar-logo" />
+          <span className="brand-text">JobFeed</span>
         </Link>
 
         <div className="navbar-links">
-          <Link to="/favorite" className="nav-link"><MdBookmark /> Saved post</Link>
+          <Link to="/favorite" className="nav-link"><MdBookmark className="nav-icon" /> SAVED POST</Link>
         </div>
       </nav>
     </div>

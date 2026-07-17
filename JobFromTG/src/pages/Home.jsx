@@ -108,7 +108,7 @@ function Home() {
           <input
             className="search-input"
             type="text"
-            placeholder="search for jobs..."
+            placeholder="Search for jobs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -134,7 +134,6 @@ function Home() {
 
         <aside className={`filter-sidebar ${showFilters ? "open" : ""}`}>
           <div className="filter-header">
-            <h4>FILTER 🔻</h4>
             <span className="close-filter" onClick={() => setShowFilters(false)}>✕</span>
           </div>
 
@@ -171,10 +170,7 @@ function Home() {
 
         <div className="job-results">
           <div className="results-header">
-            <p>Showing {filteredJobs.length} jobs available</p>
-            <div className="view-toggle">
-              <button className="active"> Available Jobs</button>
-            </div>
+            <p>{filteredJobs.length} jobs available</p>
           </div>
 
           {error && <p className="error-text">{error}</p>}
