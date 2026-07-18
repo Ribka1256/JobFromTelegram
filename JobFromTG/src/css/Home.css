@@ -109,7 +109,7 @@
 .home {
   display: flex;
   gap: 2rem;
-  padding: 2rem;
+  padding: 20px 15px;
   background-color: rgb(49, 49, 49);
   min-height: 100vh;
   color: black;

@@ -4,6 +4,7 @@
 .job-card {
   width: 100%;        /* fill the grid cell instead of forcing 400px */
   max-width: 800px;   /* optional: caps how wide it gets on very wide columns */
+  height: auto;
   border-radius: 18px;
   overflow: hidden;
   background: linear-gradient(
@@ -28,28 +29,40 @@
 ========================== */
 .job-poster {
   position: relative;
-  padding: 18px 55px 14px 18px;
+  padding: 18px 55px 18px 18px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
   background-color:rgb(97, 96, 96);
-  height: auto;
-  border-radius: 30px;
+  height: 100px;
+  border-radius: 20px;
+  align-items: center;
+  text-align: left;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
-.Icon{
-  background-color: gray;
-  padding:10px ;
-  border-radius: 100px;
 
+.Icon{
+  background: linear-gradient(
+    180deg,
+    #232731 0%,
+    #1f3a2e 55%,
+    #1c8a45 100%
+  );
+  padding: 8px ;
+  border-radius: 100px;
+  font-size: 40px;
+  color: white;
 }
+
 .job {
-  font-size: 20px;
+  font-size: 18px;
   color:rgb(212, 210, 210);
-  font-weight: 500;
-  margin-top: 10px;
-  margin-left: 0px;
+  font-weight: 600;
+  width: 65%;
+  text-align: left;
 }
-.briefcase-icon {
+
+.briefcase-icon{
   display: inline-flex;
   background: linear-gradient(
     180deg,
@@ -103,7 +116,6 @@
 ========================== */
 .favorite-btn {
   position: absolute;
-  top: 18px;
   right: 16px;
   background: #eceff3;
   color: #222;
@@ -119,11 +131,16 @@
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: 
+  background-color 0.2s, 
+  ease-in-out,
+  transform 0.2s ease-in-out;
 }
 
 .favorite-btn:hover {
-  background: #ffffff;
+  transform: translateY(-1px) scale(1.1);
+  background-color: #16b955;
+  color: #fff;
 }
 
 .favorite-btn.active {
@@ -140,10 +157,11 @@
 }
 
 .job-info h3 {
-  font-size: 1.4rem;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
   line-height: 1.25;
-  margin-bottom: 16px;
-  font-weight: 550;
+  margin-bottom: 18px;
+  margin-top: 12px;
+  font-weight: 600;
   color: white;
 }
 
@@ -153,11 +171,11 @@
 .job-meta {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0;
+  gap: 8px;
 }
 
 .job-meta div {
-  padding-left: 18px;
+  padding-left: 12px;
   border-left: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -169,7 +187,7 @@
 .job-meta strong {
   display: block;
   color: #fff;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.01em;
@@ -187,7 +205,7 @@
 ========================== */
 .detail-link{
   text-decoration: none;
-  color: #8b8a8a;
+  color: #f9f9f980;
   font-size: 0.9rem;
   line-height: 1.4;
   display: block;
