@@ -10,6 +10,20 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --navBar-bgColor: #F0ECEC;
+  --logoText-color: #14243f;
+  --hamburger: #14243f;
+
+  --background-color: #C9C6C6;
+  --headline-color: #0C203D;
+  --body-color: #3f3e3ee7;
+  --cta-color: #18AAAE;
+  --cta-hover-color: #0eb5bb;
+  --pill-color: #14243f;
+  --pill-active-color: #045A68;
+  --pill-hover-color: #02888dd9;
+
 }
 
 * {
