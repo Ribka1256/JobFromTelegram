@@ -1,5 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useJobContext } from "../Components/JobContext.jsx";
+import { HiArrowRight, HiX, HiCalendar, HiLocationMarker } from "react-icons/hi";
+import { FaBriefcase } from "react-icons/fa";
+import { BsBookmarkFill } from "react-icons/bs";
 import "../css/JobDetail.css";
 
 function JobDetail({ job: jobProp, onClose }) {
@@ -34,13 +37,15 @@ function JobDetail({ job: jobProp, onClose }) {
         {/* Header */}
         <div className="jd-header">
           <div className="jd-company">
-            <div className="jd-icon">{"</>"}</div>
+            <div className="jd-icon-container"><FaBriefcase className = "jd-icon" /></div>
             <div>
               <p className="jd-company-name">{job.company_name?.toUpperCase()}</p>
               <p className="jd-category">{job.category || "Engineering"}</p>
             </div>
           </div>
-          <button className="jd-close" onClick={handleClose}>✕</button>
+          <button className="jd-close" onClick={handleClose}>
+            <HiX />
+          </button>
         </div>
 
         {/* Scrollable body */}
@@ -48,9 +53,9 @@ function JobDetail({ job: jobProp, onClose }) {
           <h1 className="jd-title">{job.title}</h1>
 
           <div className="jd-meta-pills">
-            {job.location && <span className="jd-pill">📍 {job.location}</span>}
+            {job.location && <span className="jd-pill"><HiLocationMarker style={{ fontSize: '1rem' }} /> {job.location}</span>}
             {job.salary_range && <span className="jd-pill">💲 {job.salary_range}</span>}
-            {job.posted_at && <span className="jd-pill">🕐 {job.posted_at}</span>}
+            {job.posted_at && <span className="jd-pill"><HiCalendar style={{ fontSize: '1rem' }} /> {job.posted_at}</span>}
           </div>
 
           <div className="jd-divider" />
@@ -108,8 +113,9 @@ function JobDetail({ job: jobProp, onClose }) {
 
         {/* Sticky footer */}
         <div className="jd-footer">
-          <button className="jd-save-btn" onClick={toggleSave}>
-            {saved ? "★ Saved" : "🔖 Save For Later"}
+          <button className={`jd-save-btn ${saved ? 'active' : ''}`} onClick={toggleSave}>
+            {saved ? "SAVED" : "SAVE"}
+            <BsBookmarkFill className="jd-bookmark-icon" />
           </button>
           <button
             className="jd-apply-btn"
@@ -121,7 +127,7 @@ function JobDetail({ job: jobProp, onClose }) {
   }
 }}
 >
-            Apply Now ↗
+            APPLY NOW <HiArrowRight className="jd-arrow-icon" />
           </button>
         </div>
       </div>

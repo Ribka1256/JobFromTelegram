@@ -37,8 +37,9 @@
 
 .brand-text {
   color: #14243f;
-  font-size: 1.4rem;
-  font-family: "Inter", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  font-family: var(--logo-font);
 }
 
 .navbar-links {

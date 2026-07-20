@@ -1,14 +1,16 @@
-import JobCards from '../Components/JobCards.jsx'
-import { useJobContext } from '../Components/JobContext.jsx'
-import '../css/Favorites.css'
+import JobCards from "../Components/JobCards.jsx";
+import { useJobContext } from "../Components/JobContext.jsx";
+import "../css/Favorites.css";
 function Fav() {
   const { favorite, getJobKey } = useJobContext();
 
   return (
     <div className="favorite">
-      <h2 className='h2'>SAVED POSTS</h2>
+      <h2 className="h2">SAVED POSTS</h2>
       {favorite.length === 0 ? (
-        <p>No favorite jobs yet.</p>
+        <div className="favorites-empty">
+          <p>No favorite jobs yet...</p>
+        </div>
       ) : (
         <div className="movies-grid">
           {favorite.map((job) => (

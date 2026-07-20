@@ -103,10 +103,24 @@ function Home() {
     );
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setJobTypeFilters([]);
     setExperienceFilters([]);
     setActiveCategory("All");
+    setSearchQuery("");
+
+    setLoading(true);
+
+    try {
+      const popularJobs = await getJobs();
+      setJobs(tagJobs(popularJobs));
+      setError(null);
+    } catch (err) {
+      console.log(err);
+      setError("Failed to load jobs");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -186,6 +200,9 @@ function Home() {
 
         <div className="job-results">
           <div className="results-header">
+            <button className="reset-btn" onClick={handleReset}>
+              Reset Filters
+            </button>
             <p>{filteredJobs.length} jobs available</p>
           </div>
 
