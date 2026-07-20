@@ -6,6 +6,7 @@ import { FaBriefcase } from "react-icons/fa";
 import { BsBriefcaseFill } from "react-icons/bs";
 import { BsBookmarkFill, BsHeartFill } from "react-icons/bs";
 import { MdHome, MdBookmark } from "react-icons/md";
+import { HiArrowLeft, HiArrowRight } from "react-icons/hi";
 function JobCard({ job, onViewDetails }) {
   const navigate = useNavigate();
   const { addFavorite, removeFromFavorite, isFavorite, getJobKey } =
@@ -72,6 +73,7 @@ function JobCard({ job, onViewDetails }) {
           }}
         >
           Apply Now
+          <HiArrowRight className="arrow-icon" />
         </button>
       </div>
     </div>

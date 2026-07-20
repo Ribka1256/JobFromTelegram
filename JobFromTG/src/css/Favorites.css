@@ -1,16 +1,16 @@
-.favorites {
-  background-color: #1c1c1c;
+.favorite {
+  background: var(--background-color);
   padding: 2rem;
   width: 100%;
   box-sizing: border-box;
 }
 
-.favorites h2 {
+.favorite h2 {
+  margin-top: 80px;
   margin-bottom: 2rem;
   text-align: center;
   font-size: 2.5rem;
-  color: #ffffff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: var(--headline-color);
 }
 
 .favorites-empty {
@@ -49,14 +49,7 @@
 .movies-grid > * {
   animation: fadeIn 0.3s ease-out forwards;
 }
-.favorite{
-  background-color: #424242;
-}
-.h1{
-  font-size: 2.5rem;
-  color: #ffffff;
-  text-align: center;
-}
+
 p{
   color: #ffffff; 
 }

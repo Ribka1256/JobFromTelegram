@@ -6,7 +6,7 @@ function Fav() {
 
   return (
     <div className="favorite">
-      <h1 className='h1'>My Favorites</h1>
+      <h2 className='h2'>SAVED POSTS</h2>
       {favorite.length === 0 ? (
         <p>No favorite jobs yet.</p>
       ) : (

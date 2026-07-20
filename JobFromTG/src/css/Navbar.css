@@ -67,7 +67,7 @@
 }
 
 .nav-link:hover {
-  background-color: #143b7e;
+  background-color: var(--cta-color);
   color: white;
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -75,6 +75,40 @@
 
 .nav-icon {
   margin-right: 4px;
+  margin-bottom: 2px;
+  font-size: 1.6rem;
+  vertical-align: middle;
+}
+
+.navbar .menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #14243f;
+  margin-left: -15px;
+  margin-right: -40px;
+}
+
+.navbar-links .back-btn{
+  margin-right: 10px;
+  background-color: #14243f;
+  padding: 10px 16px;
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  display: none; /* Hide the back button by default */
+}
+
+.navbar-links .back-btn:hover{
+  background-color: var(--cta-color);
+  color: white;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-links .back-btn .nav-icon {
+  margin-right: -2px;
   margin-bottom: 2px;
   font-size: 1.6rem;
   vertical-align: middle;

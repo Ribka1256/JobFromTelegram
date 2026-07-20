@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import JobCard from "../Components/JobCards.jsx";
-import JobDetail from './JobDetail.jsx';
-import '../css/Home.css';
+import JobDetail from "./JobDetail.jsx";
+import "../css/Home.css";
 import { searchJobs, getJobs } from "../service/api";
-import { getJobCategory, getJobType, getExperienceLevel } from "../utils/categorize.js";
+import {
+  getJobCategory,
+  getJobType,
+  getExperienceLevel,
+} from "../utils/categorize.js";
 import { useFilter } from "../Components/FilterContext";
-const categories = ["All", "Engineering", "Design", "Marketing", "Content", "Data Science", "Service"];
+const categories = [
+  "All",
+  "Engineering",
+  "Design",
+  "Marketing",
+  "Content",
+  "Data Science",
+  "Service",
+];
 
 function Home() {
   const [jobs, setJobs] = useState([]);
@@ -17,7 +29,7 @@ function Home() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobTypeFilters, setJobTypeFilters] = useState([]);
   const [experienceFilters, setExperienceFilters] = useState([]);
-  const {showFilters, setShowFilters }= useFilter();
+  const { showFilters, setShowFilters } = useFilter();
   const navigate = useNavigate();
 
   // Tag each job with derived fields
@@ -70,8 +82,7 @@ function Home() {
       job.category?.toLowerCase() === activeCategory.toLowerCase();
 
     const jobTypeMatch =
-      jobTypeFilters.length === 0 ||
-      jobTypeFilters.includes(job.job_type);
+      jobTypeFilters.length === 0 || jobTypeFilters.includes(job.job_type);
 
     const experienceMatch =
       experienceFilters.length === 0 ||
@@ -82,13 +93,13 @@ function Home() {
 
   const toggleJobType = (type) => {
     setJobTypeFilters((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
   const toggleExperience = (level) => {
     setExperienceFilters((prev) =>
-      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level],
     );
   };
 
@@ -102,7 +113,10 @@ function Home() {
     <>
       <div className="hero">
         <h1>Discover Great Careers</h1>
-        <p>Search or filter through verified opportunities across top tech, service, and design domains.</p>
+        <p>
+          Search or filter through verified opportunities across top tech,
+          service, and design domains.
+        </p>
 
         <form onSubmit={handleSubmit} className="search-form">
           <input
@@ -112,7 +126,9 @@ function Home() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button type="submit" className="search-button">Search</button>
+          <button type="submit" className="search-button">
+            Search
+          </button>
         </form>
 
         <div className="category-pills">
@@ -127,30 +143,30 @@ function Home() {
           ))}
         </div>
       </div>
-       <div className="home">
+      <div className="home">
         {showFilters && (
-          <div className="filter-backdrop" onClick={() => setShowFilters(false)} />
+          <div
+            className="filter-backdrop"
+            onClick={() => setShowFilters(false)}
+          />
         )}
 
         <aside className={`filter-sidebar ${showFilters ? "open" : ""}`}>
-          <div className="filter-header">
-            <span className="close-filter" onClick={() => setShowFilters(false)}>✕</span>
-          </div>
-
-
           <div className="filter-group">
             <h5>JOB TYPE</h5>
-            {["Full-time", "Part-time", "Contract", "Remote", "Internship"].map((t) => (
-              <label key={t}>
-                <input
-                className="check"
-                  type="checkbox"
-                  checked={jobTypeFilters.includes(t)}
-                  onChange={() => toggleJobType(t)}
-                />
-                {" "}{t}
-              </label>
-            ))}
+            {["Full-time", "Part-time", "Contract", "Remote", "Internship"].map(
+              (t) => (
+                <label key={t}>
+                  <input
+                    className="check"
+                    type="checkbox"
+                    checked={jobTypeFilters.includes(t)}
+                    onChange={() => toggleJobType(t)}
+                  />{" "}
+                  {t}
+                </label>
+              ),
+            )}
           </div>
 
           <div className="filter-group">
@@ -161,8 +177,8 @@ function Home() {
                   type="checkbox"
                   checked={experienceFilters.includes(t)}
                   onChange={() => toggleExperience(t)}
-                />
-                {" "}{t}
+                />{" "}
+                {t}
               </label>
             ))}
           </div>
@@ -178,12 +194,15 @@ function Home() {
 
           <div className="movies-grid">
             {filteredJobs.map((job) => (
-              <JobCard key={job.share_link} job={job} onViewDetails={setSelectedJob} />
+              <JobCard
+                key={job.share_link}
+                job={job}
+                onViewDetails={setSelectedJob}
+              />
             ))}
           </div>
         </div>
       </div>
-   
 
       {selectedJob && (
         <JobDetail job={selectedJob} onClose={() => setSelectedJob(null)} />

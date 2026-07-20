@@ -8,11 +8,11 @@
 }
 
 .hero h1 {
-  font-size: 5.4rem;
+  font-size: 5.6rem;
   font-weight: 520;
   margin-bottom: 0.5rem;
-  margin-top: 30px;
-  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  margin-top: 65px;
+  font-family: var(--headline-font);
   text-transform: uppercase;
   color: var(--headline-color);
 }
@@ -23,6 +23,7 @@
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 800px;
+  font-family: var(--body-font);
 }
 
 .search-form {
@@ -42,11 +43,12 @@
   background:rgb(139, 139, 139);
   color: white;
   font-size: 1rem;
+  font-family: var(--body-font);
 }
 
 .search-form input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #60ee84;
+  box-shadow: 0 0 0 2px var(--cta-color);
 }
 
 .search-button {
@@ -90,6 +92,7 @@
   border: none;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
+  margin-bottom: 0.5rem;
 }
 .search-input{
   color: white;
@@ -133,12 +136,11 @@
 .results-header p {
   border: 1px solid #444;
   padding: 0.5rem 1rem;
-  background-color: #60ee84;
-  color: #111;
+  background-color: var(--pill-active-color);
   border-radius: 20px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(14, 209, 3, 0.432);
+  box-shadow: 0 2px 4px rgba(var(--pill-active-color-rgb), 0.432);
   text-transform: uppercase;
   font-weight: 500;
 }
@@ -210,7 +212,7 @@
   left: -280px;   /* off-screen by default */
   width: 260px;
   height: 100vh;
-  margin-top: 80px; /* Adjust this value based on your navbar height */
+  margin-top: 100px; /* Adjust this value based on your navbar height */
   background: #1c1f24;
   color: #fff;
   padding: 20px;
@@ -254,10 +256,17 @@
 
 .filter-group label {
   display: block;
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 10px;
   cursor: pointer;
 }
+
+.filter-group input[type="checkbox"] {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1300px) {
   .movies-grid {

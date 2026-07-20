@@ -1,17 +1,35 @@
 import { Link } from "react-router-dom";
-import '../css/Navbar.css';
+import "../css/Navbar.css";
 import { MdBookmark } from "react-icons/md";
-import { HiMenu } from "react-icons/hi";
+import { HiMenu, HiX, HiArrowLeft } from "react-icons/hi";
 import { useFilter } from "../Components/FilterContext";
 
 function Navbar() {
-  const { setShowFilters } = useFilter();
+  const { showFilters, setShowFilters } = useFilter();
+
+  function showBackBtn() {
+    const backBtn = document.querySelector(".back-btn");
+    if (backBtn) {
+      backBtn.style.display = "block";
+    }
+  }
+
+  function hideBackBtn() {
+    const backBtn = document.querySelector(".back-btn");
+    if (backBtn) {
+      backBtn.style.display = "none";
+    }
+    window.history.back();
+  }
 
   return (
     <div className="navbar-wrapper">
       <nav className="navbar">
-        <button className="filter-hamburger" onClick={() => setShowFilters(true)}>
-          <HiMenu size={30} />
+        <button
+          className="menu-btn"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          {showFilters ? <HiX size={28} /> : <HiMenu size={28} />}
         </button>
 
         <Link to="/" className="navbar-brand">
@@ -20,7 +38,12 @@ function Navbar() {
         </Link>
 
         <div className="navbar-links">
-          <Link to="/favorite" className="nav-link"><MdBookmark className="nav-icon" /> SAVED POST</Link>
+          <button className = "back-btn" onClick={hideBackBtn}>
+            <HiArrowLeft className="nav-icon" size={20} />
+          </button>
+          <Link to="/favorite" className="nav-link" onClick={showBackBtn}>
+            <MdBookmark className="nav-icon" /> SAVED POST
+          </Link>
         </div>
       </nav>
     </div>
