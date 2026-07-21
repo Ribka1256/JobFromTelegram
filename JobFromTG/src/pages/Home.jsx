@@ -20,6 +20,10 @@ const categories = [
   "Service",
 ];
 
+function cleanTitle(title) {
+  if (!title) return title;
+  return title.replace(/^\s*(job\s*title\s*[:\-]\s*)+/gi, "").trim();
+}
 function Home() {
   const [jobs, setJobs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,9 +37,10 @@ function Home() {
   const navigate = useNavigate();
 
   // Tag each job with derived fields
-  const tagJobs = (rawJobs) =>
+ const tagJobs = (rawJobs) =>
     rawJobs.map((job) => ({
       ...job,
+      title: cleanTitle(job.title),
       category: getJobCategory(job),
       job_type: getJobType(job),
       experience_level: getExperienceLevel(job),
