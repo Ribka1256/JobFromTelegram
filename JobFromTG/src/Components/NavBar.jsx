@@ -3,6 +3,7 @@ import "../css/Navbar.css";
 import { MdBookmark } from "react-icons/md";
 import { HiMenu, HiX, HiArrowLeft } from "react-icons/hi";
 import { useFilter } from "../Components/FilterContext";
+import LogoImg from "../assets/logo.png";
 
 function Navbar() {
   const { showFilters, setShowFilters } = useFilter();
@@ -33,7 +34,7 @@ function Navbar() {
         </button>
 
         <Link to="/" className="navbar-brand">
-          <img src="src/assets/logo.png" alt="Logo" className="navbar-logo" />
+          <img src={LogoImg} alt="Logo" className="navbar-logo" />
           <span className="brand-text">JobFeed</span>
         </Link>
 
