@@ -15,6 +15,8 @@ import JobCard       from "../Components/JobCards.jsx";
 import TodayJobCard  from "../Components/TodayJobCard.jsx";
 import JobDetail     from "./JobDetail.jsx";
 import FilterSidebar from "../Components/FilterSidebar.jsx";
+import { HiSearch, HiFilter } from "react-icons/hi";
+import { IoReloadOutline } from "react-icons/io5";
 import "../css/Home.css";
 import "../css/Dashboard.css";
 import {
@@ -254,7 +256,7 @@ function Home() {
             className="filter-trigger-btn"
             onClick={() => setShowFilters(true)}
           >
-            ☰ Filters
+            <HiFilter className="filter-icon" /> FILTERS
             {activeFilterCount > 0 && (
               <span className="filter-trigger-badge">{activeFilterCount}</span>
             )}
@@ -262,7 +264,9 @@ function Home() {
 
           {/* Search input */}
           <div className="dashboard-search-wrap">
-            <span className="dashboard-search-icon">🔍</span>
+            <span className="dashboard-search-icon">
+              <HiSearch className="search-icon"/>
+            </span>
             <input
               className="dashboard-search-input"
               type="text"
@@ -279,7 +283,7 @@ function Home() {
             onClick={handleReload}
             title="Reload jobs"
           >
-            ↻ Reload
+            <IoReloadOutline /> Reload
           </button>
         </form>
 
