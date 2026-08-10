@@ -350,7 +350,7 @@ function Home() {
           {/* ── LEFT — Today's Posts ──────────────────── */}
           <div className="dashboard-left">
             <div className="section-header">
-              <span className="section-title">Today's Posts</span>
+              <span className="section-title">TODAY'S POST</span>
               <span className="section-badge today">
                 {todayLoading ? "…" : `${filteredTodayJobs.length} Jobs`}
               </span>

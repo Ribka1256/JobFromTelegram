@@ -5,25 +5,21 @@
   width: 100%;        /* fill the grid cell instead of forcing 400px */
   max-width: 800px;   /* optional: caps how wide it gets on very wide columns */
   height: auto;
-  border-radius: 18px;
+  border-radius: 12px;
   overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    #1778ac 0%,
-    #134995 55%,
-    #0C203D 100%
-  );
+  background: #134995;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
   color: white;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease-in-out;
-  cursor: default;
+  cursor: pointer;
 }
 
 .job-card:hover {
   transform: translateY(-5px) scale(1.02);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  background: #173665;
 }
 
 /* ==========================
@@ -35,7 +31,7 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background-color: #D1DCE2;
+  background-color: #ccd3d6d3;
   height: 110px;
   border-radius: 0px;
   align-items: center;
@@ -44,14 +40,9 @@
 }
 
 .Icon{
-  background: linear-gradient(
-    180deg,
-    #232731 0%,
-    #0C203D 55%,
-    #2056A3 100%
-  );
-  padding: 8px ;
-  border-radius: 100px;
+  background: #154a94;
+  padding: 10px ;
+  border-radius: 10px;
   font-size: 40px;
   color: white;
 }
@@ -154,6 +145,7 @@
 
 .job-info h3 {
   font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-family: var(--headline-font);
   line-height: 1.25;
   margin-bottom: 8px;
   margin-top: 12px;

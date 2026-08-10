@@ -13,7 +13,8 @@ import { resolve, dirname } from "path";
 import { fileURLToPath }    from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SERVER_DIR = resolve(__dirname, "../../../../");  // server/
+// controllers/ → api/ → src/ → server/  (3 levels up)
+const SERVER_DIR = resolve(__dirname, "../../../");
 
 // In-memory store of sync jobs (keyed by syncId)
 const syncJobs = new Map();
@@ -119,7 +120,7 @@ function runProcess(cmd, args, cwd, job, onLine) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
       cwd,
-      shell: false,
+      shell: true,    // Required on Windows for py/node in PATH
       env:   process.env,
     });
 
