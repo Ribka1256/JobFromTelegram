@@ -25,6 +25,8 @@ import {
   getWeekJobs,
   getRecentJobs,
   getStats,
+  startSync,
+  getSyncStatus,
 } from "../service/api";
 import { getJobType, getExperienceLevel } from "../utils/categorize.js";
 
@@ -96,8 +98,9 @@ function Home() {
   // Stats
   const [stats,             setStats]             = useState(null);
 
-  // Reload spinner
-  const [reloading,         setReloading]         = useState(false);
+  // Sync / Reload state
+  const [reloading,  setReloading]  = useState(false);
+  const [syncPhase,  setSyncPhase]  = useState(null); // null | "scraping" | "importing" | "done"
 
   // Modal
   const [selectedJob,       setSelectedJob]       = useState(null);
@@ -165,13 +168,47 @@ function Home() {
     }
   };
 
-  // ── Reload (clear search, reload all) ───────────────────────
+  // ── Sync Reload (scrape Telegram → import → refresh UI) ───────
   const handleReload = async () => {
+    if (reloading) return;
+    setReloading(true);
+    setSyncPhase("scraping");
     setSearchQuery("");
     setSearchDraft("");
-    setReloading(true);
-    await Promise.all([fetchToday(), fetchRight(rightTab), fetchStats()]);
-    setReloading(false);
+
+    try {
+      // Kick off backend sync (returns immediately with syncId)
+      await startSync();
+
+      // Poll for completion every 2 seconds
+      await new Promise((resolve) => {
+        const interval = setInterval(async () => {
+          try {
+            const status = await getSyncStatus();
+            if (status?.phase) setSyncPhase(status.phase);
+            if (status?.status === "done" || status?.status === "error") {
+              clearInterval(interval);
+              resolve();
+            }
+          } catch {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 2000);
+      });
+
+      // Refresh all data after sync
+      await Promise.all([fetchToday(), fetchRight(rightTab), fetchStats()]);
+    } catch (err) {
+      console.error("[Sync]", err);
+    } finally {
+      setSyncPhase("done");
+      // Brief "Done" flash, then reset
+      setTimeout(() => {
+        setReloading(false);
+        setSyncPhase(null);
+      }, 1500);
+    }
   };
 
   // ── Tab switch ───────────────────────────────────────────────
@@ -281,9 +318,14 @@ function Home() {
             type="button"
             className={`dashboard-reload-btn ${reloading ? "spinning" : ""}`}
             onClick={handleReload}
-            title="Reload jobs"
+            disabled={reloading}
+            title={reloading ? "Syncing Telegram channels…" : "Scrape & import latest jobs"}
           >
-            <IoReloadOutline /> RELOAD
+            <IoReloadOutline />
+            {syncPhase === "scraping"  && "Scraping…"}
+            {syncPhase === "importing" && "Importing…"}
+            {syncPhase === "done"      && "Done ✓"}
+            {!syncPhase               && "RELOAD"}
           </button>
         </form>
 

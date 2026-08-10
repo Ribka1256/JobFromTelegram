@@ -112,3 +112,22 @@ export const getChannels = async () => {
   const { data } = await apiFetch(`${BASE}/channels`);
   return data;
 };
+
+// ── Sync ─────────────────────────────────────────────────────
+
+/**
+ * Trigger a full sync: scrape Telegram → import into DB.
+ * Returns { syncId } immediately; poll getSyncStatus() for progress.
+ */
+export const startSync = async () => {
+  const res = await fetch(`${BASE}/internal/sync`, { method: "POST" });
+  const json = await res.json();
+  return json.data;
+};
+
+/** Poll the status of the current/latest sync. */
+export const getSyncStatus = async () => {
+  const res = await fetch(`${BASE}/internal/sync/status`);
+  const json = await res.json();
+  return json.data;
+};

@@ -261,7 +261,7 @@
 }
 
 .section-badge.today {
-  background: #d64b00;
+  background: var(--cta-color);
 }
 
 /* ── Right Column Tab Switcher ── */
