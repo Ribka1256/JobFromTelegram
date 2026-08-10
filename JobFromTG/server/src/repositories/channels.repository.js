@@ -1,54 +1,57 @@
 /**
  * src/repositories/channels.repository.js
- * All Prisma queries for the TelegramChannel model.
+ * Uses @supabase/supabase-js (HTTPS) instead of Prisma (TCP).
  */
 
-import { prisma } from "../database/prisma.js";
+import { supabase } from "../database/supabase.js";
+
+function assertOk({ error }, label) {
+  if (error) throw new Error(`[${label}] ${error.message}`);
+}
 
 export async function findAllChannels() {
-  return prisma.telegramChannel.findMany({
-    where:   { isActive: true },
-    orderBy: { username: "asc" },
-    select: {
-      id: true, username: true, displayName: true,
-      isNarrative: true, memberCount: true,
-      _count: { select: { jobSources: true } },
-    },
-  });
+  const { data, error } = await supabase
+    .from("telegram_channels")
+    .select("id, username, displayName, isNarrative, memberCount")
+    .eq("isActive", true)
+    .order("username", { ascending: true });
+  assertOk({ error }, "findAllChannels");
+  return data || [];
 }
 
 export async function upsertChannel(data) {
-  return prisma.telegramChannel.upsert({
-    where:  { username: data.username },
-    update: {
-      displayName: data.display_name ?? data.displayName,
-      isNarrative: data.is_narrative ?? data.isNarrative ?? false,
-    },
-    create: {
+  const { data: ch, error } = await supabase
+    .from("telegram_channels")
+    .upsert({
       username:    data.username,
-      displayName: data.display_name ?? data.displayName,
+      displayName: data.display_name ?? data.displayName ?? null,
       isNarrative: data.is_narrative ?? data.isNarrative ?? false,
-    },
-  });
+    }, { onConflict: "username" })
+    .select("id, username, displayName, isNarrative")
+    .single();
+  assertOk({ error }, "upsertChannel");
+  return ch;
 }
 
 export async function logScrape(data) {
-  const channel = await prisma.telegramChannel.findUnique({
-    where: { username: data.channelUsername },
-  });
-  if (!channel) return;
+  // Find channel
+  const { data: ch } = await supabase
+    .from("telegram_channels")
+    .select("id")
+    .eq("username", data.channelUsername)
+    .single();
+  if (!ch) return;
 
-  return prisma.scrapeLog.create({
-    data: {
-      channelId:      channel.id,
-      status:         data.status       || "SUCCESS",
-      messagesScanned:data.messagesScanned || 0,
-      jobsFound:      data.jobsFound       || 0,
-      jobsInserted:   data.jobsInserted    || 0,
-      duplicatesFound:data.duplicatesFound || 0,
-      aiCallsMade:    data.aiCallsMade     || 0,
-      durationMs:     data.durationMs      || null,
-      completedAt:    new Date(),
-    },
+  const { error } = await supabase.from("scrape_logs").insert({
+    channelId:       ch.id,
+    status:          data.status         || "SUCCESS",
+    messagesScanned: data.messagesScanned || 0,
+    jobsFound:       data.jobsFound       || 0,
+    jobsInserted:    data.jobsInserted    || 0,
+    duplicatesFound: data.duplicatesFound || 0,
+    aiCallsMade:     data.aiCallsMade     || 0,
+    durationMs:      data.durationMs      || null,
+    completedAt:     new Date().toISOString(),
   });
+  assertOk({ error }, "logScrape");
 }

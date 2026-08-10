@@ -1,86 +1,119 @@
 /**
  * src/services/stats.service.js
  * Business logic for statistics endpoints.
+ * Uses Supabase JS (HTTPS) instead of Prisma (TCP).
  */
 
-import { prisma } from "../database/prisma.js";
+import { supabase } from "../database/supabase.js";
+
+async function countWhere(table, filters = {}) {
+  let q = supabase.from(table).select("id", { count: "exact", head: true });
+  for (const [key, val] of Object.entries(filters)) {
+    if (val !== undefined) q = q.eq(key, val);
+  }
+  const { count, error } = await q;
+  if (error) throw new Error(`countWhere(${table}): ${error.message}`);
+  return count || 0;
+}
 
 export async function getOverallStats() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today    = new Date(); today.setHours(0, 0, 0, 0);
+  const weekAgo  = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+  const recentAgo= new Date(); recentAgo.setDate(recentAgo.getDate() - 14);
 
-  const weekAgo   = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  const recentAgo = new Date(); recentAgo.setDate(recentAgo.getDate() - 14);
-
+  // Run all counts in parallel via HTTPS
   const [
     totalJobs, totalCompanies, totalChannels,
-    todayJobs, weekJobs, recentJobs, totalAiExtractions,
+    todayJobs, weekJobs, recentJobs,
   ] = await Promise.all([
-    prisma.job.count({ where: { isActive: true, isDuplicate: false } }),
-    prisma.company.count(),
-    prisma.telegramChannel.count({ where: { isActive: true } }),
-    prisma.job.count({ where: { isActive: true, isDuplicate: false, postedAt: { gte: today } } }),
-    prisma.job.count({ where: { isActive: true, isDuplicate: false, postedAt: { gte: weekAgo } } }),
-    prisma.job.count({ where: { isActive: true, isDuplicate: false, postedAt: { gte: recentAgo } } }),
-    prisma.aIExtraction.count({ where: { isValid: true } }),
+    // total jobs
+    supabase.from("jobs").select("id", { count: "exact", head: true })
+      .eq("isActive", true).eq("isDuplicate", false)
+      .then(({ count }) => count || 0),
+    // companies
+    supabase.from("companies").select("id", { count: "exact", head: true })
+      .then(({ count }) => count || 0),
+    // active channels
+    supabase.from("telegram_channels").select("id", { count: "exact", head: true })
+      .eq("isActive", true)
+      .then(({ count }) => count || 0),
+    // today's jobs
+    supabase.from("jobs").select("id", { count: "exact", head: true })
+      .eq("isActive", true).eq("isDuplicate", false)
+      .gte("postedAt", today.toISOString())
+      .then(({ count }) => count || 0),
+    // week's jobs
+    supabase.from("jobs").select("id", { count: "exact", head: true })
+      .eq("isActive", true).eq("isDuplicate", false)
+      .gte("postedAt", weekAgo.toISOString())
+      .then(({ count }) => count || 0),
+    // recent (14d) jobs
+    supabase.from("jobs").select("id", { count: "exact", head: true })
+      .eq("isActive", true).eq("isDuplicate", false)
+      .gte("postedAt", recentAgo.toISOString())
+      .then(({ count }) => count || 0),
   ]);
 
-  return { totalJobs, totalCompanies, totalChannels, todayJobs, weekJobs, recentJobs, totalAiExtractions };
+  return { totalJobs, totalCompanies, totalChannels, todayJobs, weekJobs, recentJobs };
 }
 
 export async function getCategoryBreakdown() {
-  const rows = await prisma.job.groupBy({
-    by:      ["categoryId"],
-    where:   { isActive: true, isDuplicate: false, categoryId: { not: null } },
-    _count:  { id: true },
-    orderBy: { _count: { id: "desc" } },
-    take:    20,
-  });
+  // Fetch all active jobs with their categoryId + category name
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("categoryId, category:categories(id, name, slug, iconEmoji)")
+    .eq("isActive", true)
+    .eq("isDuplicate", false)
+    .not("categoryId", "is", null);
 
-  // Fetch category names
-  const categoryIds = rows.map((r) => r.categoryId).filter(Boolean);
-  const categories  = await prisma.category.findMany({
-    where:  { id: { in: categoryIds } },
-    select: { id: true, name: true, slug: true, iconEmoji: true },
-  });
+  if (error) throw new Error(`getCategoryBreakdown: ${error.message}`);
 
-  const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
+  // Group client-side
+  const counts = {};
+  for (const job of (data || [])) {
+    const cat = job.category;
+    if (!cat) continue;
+    if (!counts[cat.id]) counts[cat.id] = { category: cat, count: 0 };
+    counts[cat.id].count++;
+  }
 
-  return rows.map((row) => ({
-    category: catMap[row.categoryId] || { name: "Other", slug: "other" },
-    count:    row._count.id,
-  }));
+  return Object.values(counts).sort((a, b) => b.count - a.count).slice(0, 20);
 }
 
 export async function getEmploymentTypeBreakdown() {
-  const rows = await prisma.job.groupBy({
-    by:      ["employmentType"],
-    where:   { isActive: true, isDuplicate: false },
-    _count:  { id: true },
-    orderBy: { _count: { id: "desc" } },
-  });
-  return rows.map((r) => ({ type: r.employmentType, count: r._count.id }));
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("employmentType")
+    .eq("isActive", true)
+    .eq("isDuplicate", false);
+
+  if (error) throw new Error(`getEmploymentTypeBreakdown: ${error.message}`);
+
+  const counts = {};
+  for (const job of (data || [])) {
+    counts[job.employmentType] = (counts[job.employmentType] || 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
 export async function getTopLocations() {
-  const rows = await prisma.job.groupBy({
-    by:      ["locationId"],
-    where:   { isActive: true, isDuplicate: false, locationId: { not: null } },
-    _count:  { id: true },
-    orderBy: { _count: { id: "desc" } },
-    take:    10,
-  });
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("locationId, location:locations(id, city, country)")
+    .eq("isActive", true)
+    .eq("isDuplicate", false)
+    .not("locationId", "is", null);
 
-  const locationIds = rows.map((r) => r.locationId).filter(Boolean);
-  const locations   = await prisma.location.findMany({
-    where:  { id: { in: locationIds } },
-    select: { id: true, city: true, country: true },
-  });
+  if (error) throw new Error(`getTopLocations: ${error.message}`);
 
-  const locMap = Object.fromEntries(locations.map((l) => [l.id, l]));
-
-  return rows.map((row) => ({
-    location: locMap[row.locationId] || { city: "Unknown" },
-    count:    row._count.id,
-  }));
+  const counts = {};
+  for (const job of (data || [])) {
+    const loc = job.location;
+    if (!loc) continue;
+    if (!counts[loc.id]) counts[loc.id] = { location: loc, count: 0 };
+    counts[loc.id].count++;
+  }
+  return Object.values(counts).sort((a, b) => b.count - a.count).slice(0, 10);
 }

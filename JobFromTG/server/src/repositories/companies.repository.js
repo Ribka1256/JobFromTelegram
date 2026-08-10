@@ -1,50 +1,47 @@
 /**
  * src/repositories/companies.repository.js
- * All Prisma queries for the Company model.
+ * Uses @supabase/supabase-js (HTTPS) instead of Prisma (TCP).
  */
 
-import { prisma } from "../database/prisma.js";
+import { supabase } from "../database/supabase.js";
+
+function assertOk({ error }, label) {
+  if (error) throw new Error(`[${label}] ${error.message}`);
+}
 
 export async function findAllCompanies({ limit = 100 } = {}) {
-  return prisma.company.findMany({
-    orderBy: { name: "asc" },
-    take: limit,
-    select: {
-      id: true,
-      name: true,
-      website: true,
-      logoUrl: true,
-      isVerified: true,
-      _count: { select: { jobs: true } },
-    },
-  });
+  const { data, error } = await supabase
+    .from("companies")
+    .select("id, name, website, logoUrl, isVerified")
+    .order("name", { ascending: true })
+    .limit(limit);
+  assertOk({ error }, "findAllCompanies");
+  return data || [];
 }
 
 export async function findCompanyById(id) {
-  return prisma.company.findUnique({
-    where:  { id },
-    select: {
-      id: true, name: true, website: true, email: true,
-      phone: true, logoUrl: true, description: true, isVerified: true,
-      _count: { select: { jobs: true } },
-    },
-  });
+  const { data, error } = await supabase
+    .from("companies")
+    .select("id, name, website, email, phone, logoUrl, description, isVerified")
+    .eq("id", id)
+    .single();
+  assertOk({ error }, "findCompanyById");
+  return data;
 }
 
 export async function findJobsByCompany(companyId, { page = 1, limit = 20 } = {}) {
   const skip = (page - 1) * limit;
-  const [jobs, total] = await Promise.all([
-    prisma.job.findMany({
-      where:   { companyId, isActive: true, isDuplicate: false },
-      orderBy: { postedAt: "desc" },
-      skip, take: limit,
-      select: {
-        id: true, title: true, employmentType: true,
-        experienceLevel: true, postedAt: true, deadline: true,
-        location: { select: { city: true } },
-      },
-    }),
-    prisma.job.count({ where: { companyId, isActive: true, isDuplicate: false } }),
-  ]);
-  return { jobs, total };
+  const { data, error, count } = await supabase
+    .from("jobs")
+    .select(
+      "id, title, employmentType, experienceLevel, postedAt, deadline, location:locations(city)",
+      { count: "exact" }
+    )
+    .eq("companyId",   companyId)
+    .eq("isActive",    true)
+    .eq("isDuplicate", false)
+    .order("postedAt", { ascending: false })
+    .range(skip, skip + limit - 1);
+  assertOk({ error }, "findJobsByCompany");
+  return { jobs: data || [], total: count || 0 };
 }
