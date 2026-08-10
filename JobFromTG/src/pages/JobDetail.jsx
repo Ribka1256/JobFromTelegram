@@ -39,8 +39,8 @@ function JobDetail({ job: jobProp, onClose }) {
           <div className="jd-company">
             <div className="jd-icon-container"><FaBriefcase className = "jd-icon" /></div>
             <div>
-              <p className="jd-company-name">{job.company_name?.toUpperCase()}</p>
-              <p className="jd-category">{job.category || "Engineering"}</p>
+              <p className="jd-company-name">{(job.company?.name || job.company_name || "Company").toUpperCase()}</p>
+              <p className="jd-category">{job.category?.name ?? (typeof job.category === "string" ? job.category : "Other")}</p>
             </div>
           </div>
           <button className="jd-close" onClick={handleClose}>
@@ -53,9 +53,9 @@ function JobDetail({ job: jobProp, onClose }) {
           <h1 className="jd-title">{job.title}</h1>
 
           <div className="jd-meta-pills">
-            {job.location && <span className="jd-pill"><HiLocationMarker style={{ fontSize: '1rem' }} /> {job.location}</span>}
-            {job.salary_range && <span className="jd-pill">💲 {job.salary_range}</span>}
-            {job.posted_at && <span className="jd-pill"><HiCalendar style={{ fontSize: '1rem' }} /> {job.posted_at}</span>}
+            {(job.location?.city || job.location) && <span className="jd-pill"><HiLocationMarker style={{ fontSize: '1rem' }} /> {job.location?.city || job.location}</span>}
+            {(job.salaryRaw || job.salary_range) && <span className="jd-pill">💲 {job.salaryRaw || job.salary_range}</span>}
+            {(job.postedAt || job.posted_at) && <span className="jd-pill"><HiCalendar style={{ fontSize: '1rem' }} /> {new Date(job.postedAt || job.posted_at).toLocaleDateString()}</span>}
           </div>
 
           <div className="jd-divider" />
@@ -63,11 +63,11 @@ function JobDetail({ job: jobProp, onClose }) {
           <div className="jd-two-col">
             <div>
               <p className="jd-label">POSITION TYPE</p>
-              <p className="jd-value">{job.position_type || "Full-time"}</p>
+              <p className="jd-value">{job.employmentType || job.position_type || "Full-time"}</p>
             </div>
             <div>
               <p className="jd-label">REQUIRED EXPERIENCE</p>
-              <p className="jd-value">{job.experience_level || "Senior"}</p>
+              <p className="jd-value">{job.experienceLevel || job.experience_level || "Not specified"}</p>
             </div>
           </div>
 
@@ -105,7 +105,7 @@ function JobDetail({ job: jobProp, onClose }) {
             <p className="jd-label">ASSOCIATED SKILLS</p>
             <div className="jd-skills">
               {(job.skills || []).map((skill, i) => (
-                <span className="jd-skill-tag" key={i}>{skill}</span>
+                <span className="jd-skill-tag" key={i}>{skill?.name || skill}</span>
               ))}
             </div>
           </section>
@@ -119,14 +119,12 @@ function JobDetail({ job: jobProp, onClose }) {
           </button>
           <button
             className="jd-apply-btn"
-             onClick={() => {
-  if (job.share_link) {
-    window.open(job.share_link, "_blank");
-  } else {
-    navigate('/apply', { state: { job } });
-  }
-}}
->
+            onClick={() => {
+              const link = job.telegramMessageLink || job.applicationUrl || job.share_link;
+              if (link) window.open(link, "_blank");
+              else navigate('/apply', { state: { job } });
+            }}
+          >
             APPLY NOW <HiArrowRight className="jd-arrow-icon" />
           </button>
         </div>

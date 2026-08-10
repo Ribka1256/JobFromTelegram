@@ -1,13 +1,30 @@
 {
-  "name": "server",
-  "version": "1.0.0",
+  "name": "jobfeed-server",
+  "version": "2.0.0",
+  "description": "JobFeed v2 — Production Express API backed by PostgreSQL/Supabase",
   "type": "module",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "node scripts/seed.js"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "@supabase/supabase-js": "^2.110.9",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-validator": "^7.3.2",
+    "pg": "^8.22.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "prisma": "^7.9.1"
   }
 }

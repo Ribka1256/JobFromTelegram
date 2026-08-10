@@ -1,0 +1,656 @@
+/* =====================================================
+   Dashboard.css — JobFeed v2
+   All dashboard-specific styles
+   ===================================================== */
+
+/* ── Dashboard Wrapper ── */
+.dashboard-page {
+  background-color: var(--background-color);
+  min-height: 100vh;
+  padding-top: 72px; /* navbar height */
+}
+
+/* ── Search Bar Row ── */
+.dashboard-search-row {
+  background-color: var(--background-color);
+  padding: 14px 20px 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  position: sticky;
+  top: 72px;
+  z-index: 50;
+}
+
+.dashboard-search-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-search-icon {
+  position: absolute;
+  left: 14px;
+  color: #888;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.dashboard-search-input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(20, 36, 63, 0.15);
+  background: #f5f5f5;
+  color: var(--headline-color);
+  font-size: 0.95rem;
+  font-family: var(--body-font);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.dashboard-search-input::placeholder {
+  color: #999;
+}
+
+.dashboard-search-input:focus {
+  border-color: var(--cta-color);
+  box-shadow: 0 0 0 3px rgba(24, 170, 174, 0.12);
+  background: #fff;
+}
+
+.dashboard-reload-btn {
+  background: var(--cta-color);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--body-font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.dashboard-reload-btn:hover {
+  background-color: var(--cta-hover-color);
+  transform: translateY(-1px);
+}
+
+.dashboard-reload-btn:active {
+  transform: translateY(0);
+}
+
+.dashboard-reload-btn.spinning svg {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Filter Trigger Button ── */
+.filter-trigger-btn {
+  background: #14243f;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--body-font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.filter-trigger-btn:hover {
+  background-color: #1e3a6e;
+  transform: translateY(-1px);
+}
+
+.filter-trigger-badge {
+  background: var(--cta-color);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* ── Category Pills Row ── */
+.category-pills-row {
+  padding: 10px 20px 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background-color: var(--background-color);
+  position: sticky;
+  top: 122px; /* navbar + search row height */
+  z-index: 49;
+}
+
+.category-pills-row::-webkit-scrollbar {
+  display: none;
+}
+
+.category-pills-inner {
+  display: inline-flex;
+  gap: 7px;
+  padding-bottom: 10px;
+}
+
+.category-pill {
+  background-color: #14243f;
+  color: #ddd;
+  border-radius: 80px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--body-font);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.18s, color 0.18s, transform 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.category-pill:hover {
+  background-color: var(--pill-hover-color);
+}
+
+.category-pill.active {
+  background-color: var(--pill-active-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(4, 90, 104, 0.4);
+}
+
+/* ── Two-Column Dashboard Body ── */
+.dashboard-body {
+  display: flex;
+  gap: 0;
+  padding: 14px 20px 40px;
+  min-height: calc(100vh - 160px);
+}
+
+/* ── LEFT COLUMN — Today's Posts ── */
+.dashboard-left {
+  width: 40%;
+  flex-shrink: 0;
+  padding-right: 14px;
+  border-right: 1px solid rgba(20, 36, 63, 0.12);
+  /* Let left column scroll independently */
+  max-height: calc(100vh - 170px);
+  overflow-y: auto;
+  position: sticky;
+  top: 170px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(20, 36, 63, 0.15) transparent;
+}
+
+.dashboard-left::-webkit-scrollbar { width: 3px; }
+.dashboard-left::-webkit-scrollbar-thumb {
+  background: rgba(20, 36, 63, 0.15);
+  border-radius: 3px;
+}
+
+/* ── RIGHT COLUMN — This Week / Recent ── */
+.dashboard-right {
+  flex: 1;
+  min-width: 0;
+  padding-left: 18px;
+}
+
+/* ── Section Header ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(20, 36, 63, 0.08);
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--headline-color);
+  font-family: var(--body-font);
+  letter-spacing: 0.01em;
+}
+
+.section-badge {
+  background: var(--pill-active-color);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: var(--body-font);
+}
+
+.section-badge.today {
+  background: #d64b00;
+}
+
+/* ── Right Column Tab Switcher ── */
+.right-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.right-tab-btn {
+  background: rgba(20, 36, 63, 0.07);
+  color: #555;
+  border: 1.5px solid transparent;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--body-font);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.right-tab-btn:hover {
+  background: rgba(20, 36, 63, 0.12);
+  color: var(--headline-color);
+}
+
+.right-tab-btn.active {
+  background: var(--pill-active-color);
+  color: white;
+  border-color: var(--pill-active-color);
+}
+
+.right-tab-total {
+  margin-left: auto;
+  background: rgba(20, 36, 63, 0.06);
+  color: var(--headline-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: var(--body-font);
+}
+
+/* ── TODAY JOB CARDS ── */
+.today-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.today-job-card {
+  background: linear-gradient(160deg, #1778ac 0%, #134995 55%, #0C203D 100%);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: white;
+  cursor: default;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.today-job-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+/* Card Row 1 — Company + Time */
+.tjc-row1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.tjc-company-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #232731 0%, #0C203D 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.tjc-company-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tjc-company-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  font-family: var(--body-font);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tjc-channel-label {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+}
+
+.tjc-time-ago {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--body-font);
+}
+
+/* Card Row 2 — Title + Location + Deadline */
+.tjc-row2 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tjc-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.25;
+  flex: 1;
+  min-width: 0;
+}
+
+.tjc-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.tjc-meta-item {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.65);
+  white-space: nowrap;
+  font-family: var(--body-font);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Card Row 3 — Description */
+.tjc-description {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+/* Card Row 4 — Actions */
+.tjc-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tjc-apply-btn {
+  background: var(--cta-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--body-font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.2s, transform 0.18s;
+  flex: 1;
+  justify-content: center;
+}
+
+.tjc-apply-btn:hover {
+  background: var(--cta-hover-color);
+  transform: translateY(-1px);
+}
+
+.tjc-apply-btn .arrow-icon {
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+
+.tjc-apply-btn:hover .arrow-icon {
+  transform: translateX(3px);
+}
+
+.tjc-details-btn {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--body-font);
+  cursor: pointer;
+  flex: 1;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.tjc-details-btn:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.tjc-bookmark-btn {
+  background: rgba(255,255,255,0.08);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.tjc-bookmark-btn:hover {
+  background: rgba(24, 170, 174, 0.25);
+  border-color: var(--cta-color);
+  color: var(--cta-color);
+}
+
+.tjc-bookmark-btn.saved {
+  background: rgba(24, 170, 174, 0.2);
+  border-color: var(--cta-color);
+  color: var(--cta-color);
+}
+
+/* ── RIGHT COLUMN CARD GRID ── */
+.right-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* ── Loading Skeletons ── */
+.skeleton {
+  background: linear-gradient(90deg, rgba(20,36,63,0.08) 25%, rgba(20,36,63,0.14) 50%, rgba(20,36,63,0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 10px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+  border-radius: 14px;
+  overflow: hidden;
+  height: 200px;
+}
+
+.skeleton-today-card {
+  border-radius: 14px;
+  height: 170px;
+  margin-bottom: 12px;
+}
+
+/* ── Empty States ── */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.empty-state-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  color: #888;
+  font-family: var(--body-font);
+}
+
+.empty-state h4 {
+  font-size: 1rem;
+  color: var(--headline-color);
+  margin-bottom: 6px;
+  font-family: var(--body-font);
+}
+
+/* ── Error Banner ── */
+.dashboard-error {
+  background: #fff3f3;
+  border: 1px solid #ffcdd2;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #c62828;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+  font-family: var(--body-font);
+}
+
+/* ── Responsive ── */
+
+/* Tablet: stack columns */
+@media (max-width: 1024px) {
+  .dashboard-body {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .dashboard-left {
+    width: 100%;
+    max-height: none;
+    position: static;
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 2px solid rgba(20, 36, 63, 0.1);
+    padding-bottom: 20px;
+    overflow-y: visible;
+  }
+
+  .dashboard-right {
+    padding-left: 0;
+  }
+
+  .right-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .category-pills-row {
+    top: 118px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .dashboard-search-row {
+    padding: 10px 12px 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .dashboard-search-wrap {
+    order: 1;
+    flex: 1 1 100%;
+  }
+
+  .filter-trigger-btn {
+    order: 2;
+  }
+
+  .dashboard-reload-btn {
+    order: 3;
+  }
+
+  .dashboard-body {
+    padding: 10px 12px 30px;
+  }
+
+  .right-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-pills-row {
+    top: 156px;
+    padding: 8px 12px 0;
+  }
+
+  .right-tabs {
+    flex-wrap: wrap;
+  }
+
+  .right-tab-total {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-page {
+    padding-top: 68px;
+  }
+
+  .dashboard-search-row {
+    top: 68px;
+  }
+}

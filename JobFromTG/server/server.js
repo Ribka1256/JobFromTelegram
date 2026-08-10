@@ -1,51 +1,38 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
+/**
+ * server.js
+ * HTTP server entrypoint.
+ * Imports the app factory and binds it to a port.
+ * Handles graceful shutdown on SIGTERM/SIGINT.
+ */
 
-dotenv.config();
+import { createApp      } from "./app.js";
+import { config         } from "./src/config/index.js";
+import { prisma         } from "./src/database/prisma.js";
+import { startScheduler } from "./scheduler.js";
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const app = createApp();
 
-function loadJobs() {
-  try {
-    const filePath = path.resolve("jobs.json");
-    if (!fs.existsSync(filePath)) return [];
-    const raw = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error("Failed to read jobs.json:", err);
-    return [];
-  }
+const server = app.listen(config.port, () => {
+  console.log(`\n✅ JobFeed API v2 running`);
+  console.log(`   http://localhost:${config.port}`);
+  console.log(`   Environment: ${config.nodeEnv}\n`);
+  startScheduler();
+});
+
+// ── Graceful shutdown ──────────────────────────────────────
+
+async function shutdown(signal) {
+  console.log(`\n[Server] ${signal} received — shutting down gracefully...`);
+  server.close(async () => {
+    await prisma.$disconnect();
+    console.log("[Server] Prisma disconnected. Bye.");
+    process.exit(0);
+  });
 }
 
-app.get("/jobs", (req, res) => {
-  const query = req.query.q?.toLowerCase() || "";
-  let jobs = loadJobs();
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT",  () => shutdown("SIGINT"));
 
-  if (query) {
-    jobs = jobs.filter((job) =>
-      job.title?.toLowerCase().includes(query) ||
-      job.description?.toLowerCase().includes(query) ||
-      job.company_name?.toLowerCase().includes(query) ||
-      job.location?.toLowerCase().includes(query)
-    );
-  }
-
-  res.json(jobs);
+process.on("unhandledRejection", (reason) => {
+  console.error("[Server] Unhandled Promise Rejection:", reason);
 });
-
-app.post("/apply", (req, res) => {
-  try {
-    console.log("Application received:", req.body);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ success: false });
-  }
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

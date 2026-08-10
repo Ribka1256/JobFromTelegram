@@ -1,0 +1,413 @@
+// ============================================================
+// JobFeed v2 — Prisma Schema
+// PostgreSQL via Supabase
+// See docs/adr/ADR-001-database.md for design rationale
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum EmploymentTypeEnum {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  REMOTE
+  FREELANCE
+  UNKNOWN
+}
+
+enum ExperienceLevelEnum {
+  ENTRY
+  MID
+  SENIOR
+  LEAD
+  EXECUTIVE
+  UNKNOWN
+}
+
+enum EducationLevelEnum {
+  CERTIFICATE
+  DIPLOMA
+  BACHELOR
+  MASTER
+  PHD
+  NONE
+  UNKNOWN
+}
+
+enum ExtractionMethod {
+  REGEX
+  CEREBRAS_AI
+  MANUAL
+}
+
+enum DuplicateStrategy {
+  LINK
+  HASH
+  SIMILARITY
+}
+
+enum ScrapeStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+// ============================================================
+// TELEGRAM CHANNELS
+// Represents each source Telegram channel being scraped
+// ============================================================
+
+model TelegramChannel {
+  id          String   @id @default(uuid())
+  username    String   @unique              // e.g. "fanajobs"
+  displayName String?                       // Human-readable label
+  description String?
+  isActive    Boolean  @default(true)       // Pause scraping without deleting
+  isNarrative Boolean  @default(false)      // Flag: always route to Cerebras
+  memberCount Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  jobSources  JobSource[]
+  scrapeLogs  ScrapeLog[]
+
+  @@map("telegram_channels")
+}
+
+// ============================================================
+// COMPANIES
+// Normalized company records extracted from job posts
+// ============================================================
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  normalizedName String @unique             // lowercase, trimmed for dedup
+  website     String?
+  email       String?
+  phone       String?
+  logoUrl     String?
+  description String?
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  jobs        Job[]
+
+  @@index([normalizedName])
+  @@map("companies")
+}
+
+// ============================================================
+// CATEGORIES
+// Job categories (Engineering, Design, Marketing, etc.)
+// ============================================================
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique              // e.g. "Engineering"
+  slug      String   @unique              // e.g. "engineering"
+  iconEmoji String?                       // e.g. "⚙️"
+  createdAt DateTime @default(now())
+
+  // Relations
+  jobs      Job[]
+
+  @@map("categories")
+}
+
+// ============================================================
+// LOCATIONS
+// Normalized location records
+// ============================================================
+
+model Location {
+  id           String   @id @default(uuid())
+  city         String                       // e.g. "Addis Ababa"
+  region       String?                      // e.g. "Oromia"
+  country      String   @default("Ethiopia")
+  normalizedName String @unique             // lowercase key for dedup
+
+  // Relations
+  jobs         Job[]
+
+  @@index([normalizedName])
+  @@map("locations")
+}
+
+// ============================================================
+// SKILLS
+// Canonical skill records (normalized)
+// ============================================================
+
+model Skill {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  slug      String     @unique
+
+  // Relations
+  jobSkills JobSkill[]
+
+  @@map("skills")
+}
+
+// ============================================================
+// JOBS (core table)
+// ============================================================
+
+model Job {
+  id                   String              @id @default(uuid())
+
+  // Core fields
+  title                String
+  description          String              // Raw cleaned text
+  descriptionHtml      String?             // Future: formatted version
+
+  // Structured extracted fields
+  salaryMin            Float?
+  salaryMax            Float?
+  salaryCurrency       String?             @default("ETB")
+  salaryRaw            String?             // Original string before normalization
+
+  employmentType       EmploymentTypeEnum  @default(UNKNOWN)
+  experienceLevel      ExperienceLevelEnum @default(UNKNOWN)
+  experienceYearsMin   Int?
+  experienceYearsMax   Int?
+  educationLevel       EducationLevelEnum  @default(UNKNOWN)
+
+  email                String?
+  phone                String?
+  applicationUrl       String?
+  applicationMethod    String?
+
+  responsibilities     String[]            // Array of responsibility strings
+  requirements         String[]            // Array of requirement strings
+  benefits             String[]            // Array of benefit strings
+
+  // Deduplication (see ADR-005)
+  contentHash          String              @unique
+  telegramMessageLink  String              @unique
+
+  // Confidence and extraction metadata
+  confidenceScore      Int                 // 0–100
+  extractionMethod     ExtractionMethod
+
+  // Status flags
+  isActive             Boolean             @default(true)
+  isDuplicate          Boolean             @default(false)
+  isVerified           Boolean             @default(false)
+
+  // Timing
+  postedAt             DateTime            // Original Telegram message date
+  deadline             DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  // Foreign keys
+  companyId            String?
+  categoryId           String?
+  locationId           String?
+
+  // Relations
+  company              Company?            @relation(fields: [companyId], references: [id])
+  category             Category?           @relation(fields: [categoryId], references: [id])
+  location             Location?           @relation(fields: [locationId], references: [id])
+  skills               JobSkill[]
+  sources              JobSource[]
+  savedBy              SavedJob[]
+  viewedBy             ViewedJob[]
+  aiExtractions        AIExtraction[]
+  duplicates           DuplicateJob[]      @relation("OriginalJob")
+  duplicateOf          DuplicateJob[]      @relation("DuplicateJob")
+
+  // Full-text search index (PostgreSQL tsvector)
+  @@index([postedAt(sort: Desc)])
+  @@index([companyId])
+  @@index([categoryId])
+  @@index([locationId])
+  @@index([employmentType])
+  @@index([experienceLevel])
+  @@index([confidenceScore])
+  @@index([isDuplicate])
+  @@index([isActive])
+  @@map("jobs")
+}
+
+// ============================================================
+// JOB SKILLS (junction table)
+// ============================================================
+
+model JobSkill {
+  jobId   String
+  skillId String
+
+  job     Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill   Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, skillId])
+  @@map("job_skills")
+}
+
+// ============================================================
+// JOB SOURCES
+// A job can appear in multiple channels (forwarded posts)
+// ============================================================
+
+model JobSource {
+  id                  String          @id @default(uuid())
+  jobId               String
+  channelId           String
+  telegramMessageId   Int
+  telegramMessageLink String          @unique
+  messageDate         DateTime
+  views               Int?
+  forwards            Int?
+  rawText             String          // Original unmodified text
+
+  job                 Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  channel             TelegramChannel @relation(fields: [channelId], references: [id])
+
+  @@index([jobId])
+  @@index([channelId])
+  @@map("job_sources")
+}
+
+// ============================================================
+// USERS
+// Future: recruiter accounts, job seeker profiles
+// ============================================================
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  name      String?
+  avatarUrl String?
+  role      String     @default("JOB_SEEKER")   // JOB_SEEKER | RECRUITER | ADMIN
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  savedJobs  SavedJob[]
+  viewedJobs ViewedJob[]
+
+  @@map("users")
+}
+
+// ============================================================
+// SAVED JOBS
+// ============================================================
+
+model SavedJob {
+  userId    String
+  jobId     String
+  savedAt   DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@id([userId, jobId])
+  @@map("saved_jobs")
+}
+
+// ============================================================
+// VIEWED JOBS (analytics)
+// ============================================================
+
+model ViewedJob {
+  id       String   @id @default(uuid())
+  userId   String?  // nullable for anonymous
+  jobId    String
+  viewedAt DateTime @default(now())
+  ipHash   String?  // hashed IP for anonymous analytics
+
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  job      Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([viewedAt])
+  @@map("viewed_jobs")
+}
+
+// ============================================================
+// SCRAPE LOGS
+// One record per scraper run, per channel
+// ============================================================
+
+model ScrapeLog {
+  id              String          @id @default(uuid())
+  channelId       String
+  status          ScrapeStatus
+  messagesScanned Int             @default(0)
+  jobsFound       Int             @default(0)
+  jobsInserted    Int             @default(0)
+  duplicatesFound Int             @default(0)
+  aiCallsMade     Int             @default(0)
+  errorMessage    String?
+  durationMs      Int?
+  startedAt       DateTime        @default(now())
+  completedAt     DateTime?
+
+  channel         TelegramChannel @relation(fields: [channelId], references: [id])
+
+  @@index([channelId])
+  @@index([startedAt(sort: Desc)])
+  @@map("scrape_logs")
+}
+
+// ============================================================
+// DUPLICATE JOBS (see ADR-005)
+// ============================================================
+
+model DuplicateJob {
+  id              String            @id @default(uuid())
+  originalJobId   String
+  duplicateJobId  String
+  similarityScore Float?            // 0.0–1.0, only for SIMILARITY strategy
+  strategy        DuplicateStrategy
+  detectedAt      DateTime          @default(now())
+
+  originalJob     Job               @relation("OriginalJob", fields: [originalJobId], references: [id])
+  duplicateJob    Job               @relation("DuplicateJob", fields: [duplicateJobId], references: [id])
+
+  @@unique([originalJobId, duplicateJobId])
+  @@map("duplicate_jobs")
+}
+
+// ============================================================
+// AI EXTRACTIONS
+// Every Cerebras call is logged for auditability + retraining
+// ============================================================
+
+model AIExtraction {
+  id             String   @id @default(uuid())
+  jobId          String
+  model          String                        // e.g. "llama-3.3-70b"
+  promptTokens   Int?
+  completionTokens Int?
+  rawResponse    String                        // Full AI response before parsing
+  parsedOutput   Json?                         // Validated structured output
+  isValid        Boolean                       // Did it pass validation?
+  errorMessage   String?                       // If isValid = false
+  latencyMs      Int?
+  createdAt      DateTime @default(now())
+
+  job            Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([createdAt(sort: Desc)])
+  @@map("ai_extractions")
+}

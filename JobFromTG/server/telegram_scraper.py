@@ -6,16 +6,26 @@ from telethon import TelegramClient
 # ==========================
 # Telegram API Credentials
 # ==========================
-API_ID = 34405245
-API_HASH = "YOUR_API_HASH"
-PHONE = "+251984131481"
+API_ID = 34122130
+API_HASH = "b65d38bda48ee41f381286ae82d2c2dc"
+PHONE = "+251704782498"
 
 # Telegram channels
 CHANNELS = [
+    "OppHubEt",
+    "ethioworks1",
+    "fanajobs",
+    "geezjobs_ethiopia",
+    "ethioo_link",
+    "remotejobss",
+    "ethio_job_vacancy1",
+    "hahujobs",
+    "josad_digital",
+    "josad_software",
+    "effoyjobs",
+    "ethiojobsofficial",
     "freelance_ethio",
-    "ethiojobs03",
-    "seekerascommerce",
-    "ethiojobsofficial"
+    "work_remotely"
 ]
 
 # Keywords used to identify job posts

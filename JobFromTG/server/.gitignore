@@ -1,0 +1,15 @@
+server/.env
+server/session.session
+server/generated/
+server/node_modules/
+server/prisma/migrations/
+
+# Python scraper
+server/scraper/__pycache__/
+server/scripts/__pycache__/
+*.pyc
+*.pyo
+
+# Raw data files — large, not version controlled
+server/jobs.json
+server/raw_messages.json

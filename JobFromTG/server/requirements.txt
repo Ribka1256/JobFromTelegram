@@ -1,0 +1,11 @@
+# JobFeed v2 — Python Scraper Dependencies
+# Install with: pip install -r requirements.txt
+
+# Telegram
+telethon==1.37.0
+
+# HTTP (async API calls to Cerebras + Express)
+aiohttp==3.10.5
+
+# Environment variables
+python-dotenv==1.0.1
