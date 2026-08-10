@@ -82,13 +82,14 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  transition: background-color 0.2s, transform 0.2s;
+  transition: all 0.2s ease-in-out;
   flex-shrink: 0;
 }
 
 .dashboard-reload-btn:hover {
   background-color: var(--cta-hover-color);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.08);
+  box-shadow: 0 2px 8px rgba(4, 90, 104, 0.4);
 }
 
 .dashboard-reload-btn:active {
@@ -149,6 +150,8 @@
   -ms-overflow-style: none;
   background-color: var(--background-color);
   position: sticky;
+  justify-content: center;
+  display: flex;
   top: 122px; /* navbar + search row height */
   z-index: 49;
 }
@@ -166,26 +169,30 @@
 .category-pill {
   background-color: #14243f;
   color: #ddd;
-  border-radius: 80px;
+  border-radius: 12px;
   padding: 5px 14px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 500;
   font-family: var(--body-font);
   border: none;
   cursor: pointer;
-  transition: background-color 0.18s, color 0.18s, transform 0.18s;
+  transition: all 0.2s ease-in-out;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .category-pill:hover {
   background-color: var(--pill-hover-color);
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 2px 8px rgba(4, 90, 104, 0.4);
+
 }
 
 .category-pill.active {
   background-color: var(--pill-active-color);
   color: white;
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.05);
+  font-weight: 600;
   box-shadow: 0 2px 8px rgba(4, 90, 104, 0.4);
 }
 

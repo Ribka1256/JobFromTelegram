@@ -283,7 +283,7 @@ function Home() {
             onClick={handleReload}
             title="Reload jobs"
           >
-            <IoReloadOutline /> Reload
+            <IoReloadOutline /> RELOAD
           </button>
         </form>
 
