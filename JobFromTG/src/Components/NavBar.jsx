@@ -7,11 +7,10 @@ import LogoImg from "../assets/logo.png";
 function Navbar() {
   const returnBack = () => {
     window.history.back();
+    document.querySelector(".back-button").style.display = "none";
   };
   const savedBtn = () => {
-    if (window.location.pathname === "/favorite") {
-      document.querySelector(".back-button").style.display = "flex";
-    }
+    document.querySelector(".back-button").style.display = "flex";
   };
   return (
     <div className="navbar-wrapper">
