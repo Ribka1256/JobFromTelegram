@@ -23,7 +23,6 @@ import {
   getJobs,
   getTodayJobs,
   getWeekJobs,
-  getRecentJobs,
   getStats,
   startSync,
   getSyncStatus,
@@ -93,14 +92,14 @@ function Home() {
   const [rightJobs,         setRightJobs]         = useState([]);
   const [rightLoading,      setRightLoading]      = useState(false);
   const [rightError,        setRightError]        = useState(null);
-  const [rightTab,          setRightTab]          = useState("week"); // "week" | "recent"
 
   // Stats
   const [stats,             setStats]             = useState(null);
 
   // Sync / Reload state
   const [reloading,  setReloading]  = useState(false);
-  const [syncPhase,  setSyncPhase]  = useState(null); // null | "scraping" | "importing" | "done"
+  const [syncPhase,  setSyncPhase]  = useState(null); // null | "scraping" | "importing" | "done" | "error"
+  const [syncError,  setSyncError]  = useState(false);
 
   // Modal
   const [selectedJob,       setSelectedJob]       = useState(null);
@@ -120,17 +119,12 @@ function Home() {
     }
   }, []);
 
-  // ── Fetch Right Column Jobs ──────────────────────────────────
-  const fetchRight = useCallback(async (tab) => {
+  // ── Fetch Right Column Jobs (last 5 days) ─────────────────
+  const fetchRight = useCallback(async () => {
     setRightLoading(true);
     setRightError(null);
     try {
-      let data;
-      if (tab === "week") {
-        data = await getWeekJobs(100);
-      } else {
-        data = await getRecentJobs(14, 100);
-      }
+      const data = await getWeekJobs(200);
       setRightJobs(tagJobs(data || []));
     } catch (err) {
       console.error("[Right]", err);
@@ -173,20 +167,38 @@ function Home() {
     if (reloading) return;
     setReloading(true);
     setSyncPhase("scraping");
+    setSyncError(false);
     setSearchQuery("");
     setSearchDraft("");
+
+    let finalStatus = "done";
 
     try {
       // Kick off backend sync (returns immediately with syncId)
       await startSync();
 
-      // Poll for completion every 2 seconds
+      // Poll every 2s, timeout after 10 minutes
+      const MAX_WAIT = 10 * 60 * 1000;
+      const startedAt = Date.now();
+
       await new Promise((resolve) => {
         const interval = setInterval(async () => {
+          // Safety: never poll forever
+          if (Date.now() - startedAt > MAX_WAIT) {
+            clearInterval(interval);
+            finalStatus = "error";
+            resolve();
+            return;
+          }
           try {
             const status = await getSyncStatus();
-            if (status?.phase) setSyncPhase(status.phase);
-            if (status?.status === "done" || status?.status === "error") {
+            if (status?.phase && status.phase !== "done") setSyncPhase(status.phase);
+            if (status?.status === "done") {
+              finalStatus = "done";
+              clearInterval(interval);
+              resolve();
+            } else if (status?.status === "error") {
+              finalStatus = "error";
               clearInterval(interval);
               resolve();
             }
@@ -198,27 +210,23 @@ function Home() {
       });
 
       // Refresh all data after sync
-      await Promise.all([fetchToday(), fetchRight(rightTab), fetchStats()]);
+      await Promise.all([fetchToday(), fetchRight(), fetchStats()]);
     } catch (err) {
       console.error("[Sync]", err);
+      finalStatus = "error";
     } finally {
-      setSyncPhase("done");
-      // Brief "Done" flash, then reset
+      const hadError = finalStatus === "error";
+      setSyncError(hadError);
+      setSyncPhase(hadError ? "error" : "done");
+      // Brief flash then reset
       setTimeout(() => {
         setReloading(false);
         setSyncPhase(null);
-      }, 1500);
+        setSyncError(false);
+      }, hadError ? 3000 : 1500);
     }
   };
 
-  // ── Tab switch ───────────────────────────────────────────────
-  const switchTab = (tab) => {
-    if (tab === rightTab) return;
-    setRightTab(tab);
-    setSearchQuery("");
-    setSearchDraft("");
-    fetchRight(tab);
-  };
 
   // ── Filter toggles ───────────────────────────────────────────
   const toggleJobType    = (t) => setJobTypeFilters(  (p) => p.includes(t) ? p.filter((x) => x !== t) : [...p, t]);
@@ -251,10 +259,10 @@ function Home() {
     return catMatch;
   });
 
-  // ── Initial data load ─────────────────────────────────────────
+  // ── Initial data load ──────────────────────────────────
   useEffect(() => {
     fetchToday();
-    fetchRight("week");
+    fetchRight();
     fetchStats();
   }, [fetchToday, fetchRight, fetchStats]);
 
@@ -262,11 +270,7 @@ function Home() {
     jobTypeFilters.length + experienceFilters.length + categoryFilters.length;
 
   // ── Total badge count ─────────────────────────────────────────
-  const totalCount = stats
-    ? rightTab === "week"
-      ? stats.weekJobs
-      : stats.recentJobs
-    : filteredRightJobs.length;
+  const totalCount = stats?.weekJobs ?? filteredRightJobs.length;
 
   return (
     <>
@@ -316,15 +320,17 @@ function Home() {
           {/* Reload button */}
           <button
             type="button"
-            className={`dashboard-reload-btn ${reloading ? "spinning" : ""}`}
+            className={`dashboard-reload-btn ${reloading ? "spinning" : ""} ${syncError ? "error" : ""}`}
             onClick={handleReload}
             disabled={reloading}
             title={reloading ? "Syncing Telegram channels…" : "Scrape & import latest jobs"}
           >
             <IoReloadOutline />
             {syncPhase === "scraping"  && "Scraping…"}
+            {syncPhase === "cleaning"  && "Cleaning…"}
             {syncPhase === "importing" && "Importing…"}
             {syncPhase === "done"      && "Done ✓"}
+            {syncPhase === "error"     && "Error — Retry"}
             {!syncPhase               && "RELOAD"}
           </button>
         </form>
@@ -381,22 +387,12 @@ function Home() {
             )}
           </div>
 
-          {/* ── RIGHT — This Week / Recent ────────────── */}
+          {/* ── RIGHT — Last 5 Days ───────────────── */}
           <div className="dashboard-right">
-            {/* Tab switcher + total badge */}
             <div className="right-tabs">
-              <button
-                className={`right-tab-btn ${rightTab === "week" ? "active" : ""}`}
-                onClick={() => switchTab("week")}
-              >
-                This Week
-              </button>
-              <button
-                className={`right-tab-btn ${rightTab === "recent" ? "active" : ""}`}
-                onClick={() => switchTab("recent")}
-              >
-                Recent
-              </button>
+              <span className="right-tab-btn active" style={{ cursor: "default" }}>
+                Last 5 Days
+              </span>
               {searchQuery && (
                 <span style={{ fontSize: "0.78rem", color: "#888", alignSelf: "center" }}>
                   Results for &quot;{searchQuery}&quot;

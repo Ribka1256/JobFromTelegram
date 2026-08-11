@@ -1,9 +1,18 @@
 import { Link } from "react-router-dom";
 import "../css/Navbar.css";
 import { MdBookmark } from "react-icons/md";
+import { FaArrowLeft } from "react-icons/fa6";
 import LogoImg from "../assets/logo.png";
 
 function Navbar() {
+  const returnBack = () => {
+    window.history.back();
+  };
+  const savedBtn = () => {
+    if (window.location.pathname === "/favorite") {
+      document.querySelector(".back-button").style.display = "flex";
+    }
+  };
   return (
     <div className="navbar-wrapper">
       <nav className="navbar">
@@ -11,13 +20,18 @@ function Navbar() {
           <img src={LogoImg} alt="Logo" className="navbar-logo" />
           <div className="navbar-brand-text">
             <span className="brand-text">JobFeed</span>
-            <span className="navbar-subtitle">Find verified opportunities from Ethiopian Telegram channels.</span>
+            <span className="navbar-subtitle">
+              Find verified opportunities from Ethiopian Telegram channels.
+            </span>
           </div>
         </Link>
 
         <div className="navbar-links">
-          <Link to="/favorite" className="nav-link">
-            <MdBookmark className="nav-icon" /> Saved Jobs
+          <Link to="/" className="back-button" onClick={returnBack}>
+            <FaArrowLeft size={20} />
+          </Link>
+          <Link to="/favorite" className="nav-link" onClick={savedBtn}>
+            <MdBookmark className="nav-icon" /> SAVED JOBS
           </Link>
         </div>
       </nav>

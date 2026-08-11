@@ -1,45 +1,85 @@
 /**
  * src/api/controllers/sync.controller.js
  * Runs the Telegram scraper + importer as child processes.
- * Called by the frontend Reload button via POST /api/v1/internal/sync.
+ * State is persisted to .sync-state.json so it survives node --watch restarts.
  *
  * Flow:
  *   1. POST /sync        → starts both scripts, returns { syncId }
- *   2. GET  /sync/status → returns current status + progress logs
+ *   2. GET  /sync/status → reads state file, returns current status
  */
 
-import { spawn }  from "child_process";
-import { resolve, dirname } from "path";
-import { fileURLToPath }    from "url";
+import { spawn }                       from "child_process";
+import { resolve, dirname }            from "path";
+import { fileURLToPath }               from "url";
+import { writeFileSync, readFileSync,
+         existsSync }                  from "fs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname  = dirname(fileURLToPath(import.meta.url));
 // controllers/ → api/ → src/ → server/  (3 levels up)
-const SERVER_DIR = resolve(__dirname, "../../../");
-
-// In-memory store of sync jobs (keyed by syncId)
-const syncJobs = new Map();
-
-let activeSyncId = null;   // Only one sync at a time
+const SERVER_DIR  = resolve(__dirname, "../../../");
+const STATE_FILE  = resolve(SERVER_DIR, ".sync-state.json");
 
 // ─────────────────────────────────────────────
-// POST /api/v1/internal/sync  — kick off a sync
+// State helpers (file-based, survives restarts)
+// ─────────────────────────────────────────────
+function readState() {
+  try {
+    if (existsSync(STATE_FILE)) return JSON.parse(readFileSync(STATE_FILE, "utf8"));
+  } catch {}
+  return null;
+}
+
+function writeState(state) {
+  try { writeFileSync(STATE_FILE, JSON.stringify(state, null, 2)); } catch {}
+}
+
+// Track if THIS process is already running a sync (prevents double-trigger)
+let processRunning = false;
+
+// ─────────────────────────────────────────────
+// On startup: reset any stale "running" state left by a previous crashed process.
+// When node --watch restarts, all child processes (scraper/importer) are killed,
+// so any persisted "running" state must be treated as failed.
+// ─────────────────────────────────────────────
+(function resetStaleState() {
+  const state = readState();
+  if (state?.status === "running") {
+    writeState({
+      ...state,
+      status: "error",
+      phase:  state.phase,
+      error:  "Sync interrupted — server restarted mid-sync. Click Reload to try again.",
+      doneAt: new Date().toISOString(),
+    });
+    console.log("[Sync] Reset stale 'running' state from previous session.");
+  }
+})();
+
+// ─────────────────────────────────────────────
+// POST /api/v1/internal/sync
 // ─────────────────────────────────────────────
 export async function startSync(req, res) {
-  // Prevent concurrent syncs
-  if (activeSyncId && syncJobs.get(activeSyncId)?.status === "running") {
-    return res.json({
-      success: true,
-      data: { syncId: activeSyncId, alreadyRunning: true },
-    });
+  // Prevent concurrent syncs in this process
+  if (processRunning) {
+    const state = readState();
+    return res.json({ success: true, data: { ...(state || {}), alreadyRunning: true } });
+  }
+
+  // Check persisted state — but only trust it if it started < 5 minutes ago
+  const existing = readState();
+  const STALE_MS = 5 * 60 * 1000; // 5 minutes
+  const isStale  = !existing?.startedAt ||
+    (Date.now() - new Date(existing.startedAt).getTime()) > STALE_MS;
+
+  if (existing?.status === "running" && !isStale) {
+    return res.json({ success: true, data: { ...existing, alreadyRunning: true } });
   }
 
   const syncId = `sync-${Date.now()}`;
-  activeSyncId = syncId;
-
   const job = {
     syncId,
     status:    "running",
-    phase:     "scraping",    // "scraping" | "importing" | "done" | "error"
+    phase:     "scraping",
     logs:      [],
     inserted:  0,
     skipped:   0,
@@ -47,16 +87,21 @@ export async function startSync(req, res) {
     doneAt:    null,
     error:     null,
   };
-  syncJobs.set(syncId, job);
 
-  // Respond immediately so the UI doesn't wait
+  writeState(job);
+  processRunning = true;
+
+  // Respond immediately
   res.json({ success: true, data: { syncId } });
 
-  // Run scripts in background
+  // Run in background
   runSync(job).catch(err => {
     job.status = "error";
     job.error  = err.message;
     job.doneAt = new Date().toISOString();
+    writeState(job);
+  }).finally(() => {
+    processRunning = false;
   });
 }
 
@@ -64,63 +109,77 @@ export async function startSync(req, res) {
 // GET /api/v1/internal/sync/status
 // ─────────────────────────────────────────────
 export async function getSyncStatus(req, res) {
-  if (!activeSyncId) {
-    return res.json({ success: true, data: { status: "idle" } });
-  }
-  const job = syncJobs.get(activeSyncId);
-  res.json({ success: true, data: job });
+  const state = readState();
+  res.json({ success: true, data: state || { status: "idle" } });
 }
 
 // ─────────────────────────────────────────────
 // Internal: run scraper then importer
 // ─────────────────────────────────────────────
 async function runSync(job) {
-  // ── Phase 1: py telegram_scraper.py ─────────
+  // ── Phase 1: py telegram_scraper.py ──────────
   job.phase = "scraping";
   job.logs.push("[Scraper] Starting Telegram scrape…");
+  writeState(job);
 
-  await runProcess("py", ["telegram_scraper.py"], SERVER_DIR, job, (line) => {
-    job.logs.push(`[Scraper] ${line}`);
-  });
+  try {
+    await runProcess("py", ["telegram_scraper.py"], SERVER_DIR, job, (line) => {
+      job.logs.push(`[Scraper] ${line}`);
+      if (job.logs.length % 5 === 0) writeState(job);
+    });
+    job.logs.push("[Scraper] ✅ Scrape complete.");
+  } catch (scraperErr) {
+    // Scraper failed but may have still written jobs.json — continue anyway
+    job.logs.push(`[Scraper] ⚠ Scraper exited with error: ${scraperErr.message}. Continuing with existing data…`);
+    job.status = "running"; // reset — error was non-fatal
+  }
+  writeState(job);
 
-  job.logs.push("[Scraper] ✅ Scrape complete. Starting import…");
+  // ── Phase 2: cleanup old jobs (rolling 5-day window) ─
+  job.phase = "cleaning";
+  job.logs.push("[Cleanup] Removing jobs older than 5 days…");
+  writeState(job);
 
-  // ── Phase 2: node scripts/import_jobs.mjs ───
+  try {
+    await runProcess("node", ["scripts/cleanup_jobs.mjs"], SERVER_DIR, job, (line) => {
+      job.logs.push(`[Cleanup] ${line}`);
+      writeState(job);
+    });
+  } catch {
+    job.logs.push("[Cleanup] ⚠ Cleanup skipped (non-fatal).");
+    job.status = "running";
+  }
+  writeState(job);
+
+  // ── Phase 3: node scripts/import_jobs.mjs ────
   job.phase = "importing";
+  job.logs.push("[Importer] Starting import…");
+  writeState(job);
 
-  await runProcess(
-    process.execPath,                          // path to node
-    ["scripts/import_jobs.mjs"],
-    SERVER_DIR,
-    job,
-    (line) => {
-      job.logs.push(`[Importer] ${line}`);
-      // Parse progress line: ✅ inserted: 123  ⏭  skipped: 456
-      const m = line.match(/inserted:\s*(\d+).*skipped:\s*(\d+)/);
-      if (m) {
-        job.inserted = parseInt(m[1]);
-        job.skipped  = parseInt(m[2]);
-      }
-      // Final DONE
-      const done = line.match(/Inserted\s*:\s*(\d+)/);
-      if (done) job.inserted = parseInt(done[1]);
-    }
-  );
+  await runProcess("node", ["scripts/import_jobs.mjs"], SERVER_DIR, job, (line) => {
+    job.logs.push(`[Importer] ${line}`);
+    const m = line.match(/inserted:\s*(\d+)/);
+    if (m) job.inserted = parseInt(m[1]);
+    const done = line.match(/Inserted\s*:\s*(\d+)/);
+    if (done) job.inserted = parseInt(done[1]);
+    if (job.logs.length % 5 === 0) writeState(job);
+  });
 
   job.status = "done";
   job.phase  = "done";
   job.doneAt = new Date().toISOString();
   job.logs.push(`[Sync] ✅ Done — ${job.inserted} new jobs added.`);
+  writeState(job);
 }
 
 // ─────────────────────────────────────────────
-// Helper: spawn a process and collect output
+// Helper: spawn a process and stream output
 // ─────────────────────────────────────────────
 function runProcess(cmd, args, cwd, job, onLine) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
       cwd,
-      shell: true,    // Required on Windows for py/node in PATH
+      shell: true,   // Required on Windows: finds py/node from PATH
       env:   process.env,
     });
 
@@ -129,7 +188,7 @@ function runProcess(cmd, args, cwd, job, onLine) {
     const handleData = (chunk) => {
       buffer += chunk.toString();
       const lines = buffer.split(/\r?\n/);
-      buffer = lines.pop();     // keep incomplete line in buffer
+      buffer = lines.pop();
       for (const line of lines) {
         if (line.trim()) onLine(line.trim());
       }
@@ -144,6 +203,7 @@ function runProcess(cmd, args, cwd, job, onLine) {
       else {
         job.status = "error";
         job.error  = `Process "${cmd}" exited with code ${code}`;
+        writeState(job);
         reject(new Error(job.error));
       }
     });
@@ -151,6 +211,7 @@ function runProcess(cmd, args, cwd, job, onLine) {
     proc.on("error", (err) => {
       job.status = "error";
       job.error  = err.message;
+      writeState(job);
       reject(err);
     });
   });

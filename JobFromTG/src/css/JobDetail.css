@@ -87,6 +87,7 @@
   font-weight: 700;
   color: #111;
   margin-bottom: 1rem;
+  font-family: var(--headline-font);
 }
 
 .jd-meta-pills {

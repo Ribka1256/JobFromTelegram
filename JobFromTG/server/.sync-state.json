@@ -1,0 +1,13 @@
+{
+  "syncId": "sync-1786436855372",
+  "status": "error",
+  "phase": "scraping",
+  "logs": [
+    "[Scraper] Starting Telegram scrape…"
+  ],
+  "inserted": 0,
+  "skipped": 0,
+  "startedAt": "2026-08-11T08:27:35.372Z",
+  "doneAt": "2026-08-11T08:27:43.867Z",
+  "error": "Sync interrupted — server restarted mid-sync. Click Reload to try again."
+}

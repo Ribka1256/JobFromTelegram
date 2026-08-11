@@ -17,16 +17,14 @@ async function countWhere(table, filters = {}) {
 }
 
 export async function getOverallStats() {
-  const today    = new Date(); today.setHours(0, 0, 0, 0);
-  const weekAgo  = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  const recentAgo= new Date(); recentAgo.setDate(recentAgo.getDate() - 14);
+  const today   = new Date(); today.setHours(0, 0, 0, 0);
+  const fiveDaysAgo = new Date(); fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
 
-  // Run all counts in parallel via HTTPS
   const [
     totalJobs, totalCompanies, totalChannels,
-    todayJobs, weekJobs, recentJobs,
+    todayJobs, weekJobs,
   ] = await Promise.all([
-    // total jobs
+    // total active jobs
     supabase.from("jobs").select("id", { count: "exact", head: true })
       .eq("isActive", true).eq("isDuplicate", false)
       .then(({ count }) => count || 0),
@@ -42,19 +40,14 @@ export async function getOverallStats() {
       .eq("isActive", true).eq("isDuplicate", false)
       .gte("postedAt", today.toISOString())
       .then(({ count }) => count || 0),
-    // week's jobs
+    // last 5 days
     supabase.from("jobs").select("id", { count: "exact", head: true })
       .eq("isActive", true).eq("isDuplicate", false)
-      .gte("postedAt", weekAgo.toISOString())
-      .then(({ count }) => count || 0),
-    // recent (14d) jobs
-    supabase.from("jobs").select("id", { count: "exact", head: true })
-      .eq("isActive", true).eq("isDuplicate", false)
-      .gte("postedAt", recentAgo.toISOString())
+      .gte("postedAt", fiveDaysAgo.toISOString())
       .then(({ count }) => count || 0),
   ]);
 
-  return { totalJobs, totalCompanies, totalChannels, todayJobs, weekJobs, recentJobs };
+  return { totalJobs, totalCompanies, totalChannels, todayJobs, weekJobs, recentJobs: weekJobs };
 }
 
 export async function getCategoryBreakdown() {

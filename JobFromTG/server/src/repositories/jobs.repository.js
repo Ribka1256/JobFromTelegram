@@ -110,9 +110,9 @@ export async function findTodayJobs({ limit = 50 } = {}) {
 }
 
 // ─────────────────────────────────────────────
-// findRecentJobs — last N days
+// findRecentJobs — last N days (default: 5)
 // ─────────────────────────────────────────────
-export async function findRecentJobs({ days = 14, limit = 50 } = {}) {
+export async function findRecentJobs({ days = 5, limit = 50 } = {}) {
   const since = new Date();
   since.setDate(since.getDate() - days);
 
@@ -130,10 +130,10 @@ export async function findRecentJobs({ days = 14, limit = 50 } = {}) {
 }
 
 // ─────────────────────────────────────────────
-// findWeekJobs — last 7 days
+// findWeekJobs — last 5 days (rolling window)
 // ─────────────────────────────────────────────
 export async function findWeekJobs({ limit = 50 } = {}) {
-  return findRecentJobs({ days: 7, limit });
+  return findRecentJobs({ days: 5, limit });
 }
 
 // ─────────────────────────────────────────────
@@ -153,7 +153,7 @@ export async function countTodayJobs() {
 
 export async function countWeekJobs() {
   const since = new Date();
-  since.setDate(since.getDate() - 7);
+  since.setDate(since.getDate() - 5);  // 5-day rolling window
   const { count, error } = await supabase
     .from("jobs")
     .select("id", { count: "exact", head: true })
@@ -165,7 +165,7 @@ export async function countWeekJobs() {
 
 export async function countRecentJobs() {
   const since = new Date();
-  since.setDate(since.getDate() - 14);
+  since.setDate(since.getDate() - 5);  // aligned to 5-day window
   const { count, error } = await supabase
     .from("jobs")
     .select("id", { count: "exact", head: true })
@@ -190,37 +190,47 @@ export async function createJob(data) {
     messageId, messageViews, messageForwards, aiExtraction,
   } = data;
 
+  // ── Safe upsert helper: insert-or-select (never overwrites PK) ──
+  // Using ignoreDuplicates:true (DO NOTHING) prevents the race condition
+  // where concurrent upserts overwrite the row's UUID, causing FK failures.
+  async function upsertOrSelect(table, conflictCol, insertData, selectCol = "id") {
+    const { data: inserted } = await supabase
+      .from(table)
+      .upsert(insertData, { onConflict: conflictCol, ignoreDuplicates: true })
+      .select(selectCol)
+      .maybeSingle();
+    if (inserted) return inserted[selectCol];
+    // Row already existed → fetch the existing id
+    const { data: existing } = await supabase
+      .from(table)
+      .select(selectCol)
+      .eq(conflictCol, insertData[conflictCol])
+      .maybeSingle();
+    return existing?.[selectCol] ?? null;
+  }
+
   // ── Upsert Company ──────────────────────────
   let companyId = null;
   if (companyName) {
     const norm = companyName.toLowerCase().trim();
-    const { data: co, error: coErr } = await supabase
-      .from("companies")
-      .upsert({ id: randomUUID(), name: companyName, normalizedName: norm }, { onConflict: "normalizedName", ignoreDuplicates: false })
-      .select("id").single();
-    if (!coErr && co) companyId = co.id;
+    companyId = await upsertOrSelect("companies", "normalizedName",
+      { id: randomUUID(), name: companyName, normalizedName: norm });
   }
 
   // ── Upsert Location ─────────────────────────
   let locationId = null;
   if (locationName) {
     const norm = locationName.toLowerCase().trim();
-    const { data: loc, error: locErr } = await supabase
-      .from("locations")
-      .upsert({ id: randomUUID(), city: locationName, normalizedName: norm }, { onConflict: "normalizedName", ignoreDuplicates: false })
-      .select("id").single();
-    if (!locErr && loc) locationId = loc.id;
+    locationId = await upsertOrSelect("locations", "normalizedName",
+      { id: randomUUID(), city: locationName, normalizedName: norm });
   }
 
   // ── Upsert Category ─────────────────────────
   let categoryId = null;
   if (categoryName) {
     const slug = categoryName.toLowerCase().replace(/\s+/g, "-");
-    const { data: cat, error: catErr } = await supabase
-      .from("categories")
-      .upsert({ id: randomUUID(), name: categoryName, slug }, { onConflict: "slug", ignoreDuplicates: false })
-      .select("id").single();
-    if (!catErr && cat) categoryId = cat.id;
+    categoryId = await upsertOrSelect("categories", "slug",
+      { id: randomUUID(), name: categoryName, slug });
   }
 
   // ── Insert Job ──────────────────────────────
@@ -268,7 +278,8 @@ export async function createJob(data) {
 export async function getKnownLinks() {
   const { data, error } = await supabase
     .from("jobs")
-    .select("telegramMessageLink");
+    .select("telegramMessageLink")
+    .range(0, 99999);   // bypass default 1000-row cap
   assertOk({ error }, "getKnownLinks");
   return (data || []).map((r) => r.telegramMessageLink);
 }
@@ -276,7 +287,8 @@ export async function getKnownLinks() {
 export async function getKnownHashes() {
   const { data, error } = await supabase
     .from("jobs")
-    .select("contentHash");
+    .select("contentHash")
+    .range(0, 99999);   // bypass default 1000-row cap
   assertOk({ error }, "getKnownHashes");
   return (data || []).map((r) => r.contentHash);
 }

@@ -1,12 +1,12 @@
 /**
- * src/scheduler.js
+ * scheduler.js
  * Runs background maintenance tasks on a schedule.
- * Uses setInterval (no external deps) for 14-day cleanup.
+ * Cleanup runs every 24h to enforce the 5-day rolling window.
  */
 
-import { deleteOldJobs } from "./src/services/cleanup.service.js";
+import { deleteOldJobs, RETENTION_DAYS } from "./src/services/cleanup.service.js";
 
-const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 export function startScheduler() {
   // Run once on startup after a 10-second delay
@@ -15,11 +15,11 @@ export function startScheduler() {
     await deleteOldJobs();
   }, 10_000);
 
-  // Then repeat every 14 days
+  // Repeat every 24 hours to enforce rolling window
   setInterval(async () => {
-    console.log("[Scheduler] Running scheduled 14-day cleanup...");
+    console.log("[Scheduler] Running daily cleanup...");
     await deleteOldJobs();
-  }, FOURTEEN_DAYS_MS);
+  }, ONE_DAY_MS);
 
-  console.log("[Scheduler] 14-day cleanup job registered.");
+  console.log(`[Scheduler] ${RETENTION_DAYS}-day rolling cleanup job registered (runs every 24h).`);
 }

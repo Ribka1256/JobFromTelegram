@@ -1,7 +1,7 @@
 ﻿/* Navbar.css */
 
 .navbar {
-  background-color: var(--navBar-bgColor, #F0ECEC);
+  background-color: var(--navBar-bgColor, #f0ecec);
   padding: 12px 28px;
   display: flex;
   align-items: center;
@@ -69,6 +69,7 @@
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
+  font-family: var(--body-font);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -80,7 +81,32 @@
 }
 
 .nav-link:hover {
-  background-color: var(--cta-color);
+  background-color: #033873;
+  color: white;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+  display: none; /* Initially hidden, will be shown on smaller screens */
+  background-color: var(--pill-active-color);
+  padding: 10px 18px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-family: var(--body-font);
+  text-decoration: none;
+  align-items: center;
+  gap: 6px;
+  transition:
+    background-color 0.2s ease-in-out,
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+}
+
+.back-button:hover {
+  background-color: var(--pill-hover-color);
   color: white;
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

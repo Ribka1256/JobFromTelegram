@@ -74,7 +74,7 @@ export async function getRecentJobs(query) {
 }
 
 export async function getWeekJobs(query) {
-  const limit = Math.min(parseInt(query.limit || "50", 10), 100);
+  const limit = Math.min(parseInt(query.limit || "50", 10), 200);
   return jobsRepo.findWeekJobs({ limit });
 }
 
