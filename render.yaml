@@ -1,0 +1,49 @@
+﻿# render.yaml
+# Defines both Render services for JobFeed v2.
+# Render reads this file automatically when you connect the repo.
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ── 1. Express API (Web Service) ───────────────────────────────────────
+  - type: web
+    name: jobfeed-api
+    runtime: node
+    rootDir: JobFromTG/server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false          # Set manually in Render dashboard — never hardcode
+      - key: DIRECT_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false          # Set to your Static Site URL after deploy
+
+  # ── 2. React Frontend (Static Site) ────────────────────────────────────
+  - type: web
+    name: jobfeed-ui
+    runtime: static
+    rootDir: JobFromTG
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # Set to https://jobfeed-api.onrender.com
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

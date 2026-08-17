@@ -1,0 +1,39 @@
+﻿# ── Node / npm ──────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ── Build output ──────────────────────────────
+JobFromTG/dist/
+JobFromTG/dist-ssr/
+
+# ── Environment / secrets (NEVER commit these) ──
+JobFromTG/server/.env
+.env
+*.env
+
+# ── Telegram session (contains auth tokens) ──
+JobFromTG/server/session.session
+*.session
+
+# ── Scraper raw data files ────────────────────
+JobFromTG/server/jobs.json
+JobFromTG/server/raw_messages.json
+
+# ── Python ────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Prisma generated ──────────────────────────
+JobFromTG/server/generated/
+
+# ── Scheduler lock ────────────────────────────
+JobFromTG/server/scheduler.lock
+
+# ── OS / Editor ───────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
