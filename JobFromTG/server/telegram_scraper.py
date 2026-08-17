@@ -129,7 +129,7 @@ def parse_job(message, channel):
         "company_name": company if company else "See description",
         "location": location if location else "Ethiopia",
         "description": text,
-        "posted_at": message.date.strftime("%Y-%m-%d"),
+        "posted_at": message.date.strftime("%Y-%m-%dT%H:%M:%S+00:00"),
         "deadline": deadline,
         "share_link": f"https://t.me/{channel}/{message.id}",
         "source": "telegram"

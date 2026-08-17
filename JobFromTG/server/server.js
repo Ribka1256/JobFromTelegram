@@ -3,6 +3,7 @@
  * HTTP server entrypoint.
  * Imports the app factory and binds it to a port.
  * Handles graceful shutdown on SIGTERM/SIGINT.
+ * Last updated: 2026-08-17 (findWeekJobs now excludes today)
  */
 
 import { createApp      } from "./app.js";

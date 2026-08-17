@@ -14,26 +14,62 @@
  *   - Bookmark saves/unsaves the job.
  */
 
+import { useState, useEffect } from "react";
 import { BsBriefcaseFill, BsBookmarkFill, BsBookmark } from "react-icons/bs";
 import { HiArrowRight, HiLocationMarker, HiCalendar } from "react-icons/hi";
 import { useJobContext } from "./JobContext.jsx";
 
-/** Format a date into a short human "time ago" string. */
-function timeAgo(date) {
-  if (!date) return "";
-  const now  = Date.now();
-  const then = new Date(date).getTime();
-  const diff = now - then;
+/**
+ * Compute a real-time "X mins ago" string from a UTC ISO timestamp.
+ *
+ * Logic (military time math):
+ *   diff_ms  = Date.now() - new Date(isoString).getTime()
+ *   diff_min = floor(diff_ms / 60_000)
+ *   diff_hr  = floor(diff_ms / 3_600_000)
+ *
+ * Edge-case: if the stored value is midnight UTC (T00:00:00 or T00:00:00.000Z)
+ * the scraper only saved a date with no real clock — show "Today" + the date
+ * instead of a misleading "13 hrs ago".
+ *
+ * Returns a plain string — call this from a stateful hook so it auto-updates.
+ */
+function timeAgo(isoString) {
+  if (!isoString) return "";
 
-  const mins  = Math.floor(diff / 60_000);
-  const hours = Math.floor(diff / 3_600_000);
-  const days  = Math.floor(diff / 86_400_000);
+  const posted = new Date(isoString);
+  if (isNaN(posted.getTime())) return "";
 
-  if (mins  < 1)   return "Just now";
-  if (mins  < 60)  return `${mins} min${mins === 1 ? "" : "s"} ago`;
-  if (hours < 24)  return `${hours} hr${hours === 1 ? "" : "s"} ago`;
-  if (days  === 1) return "Yesterday";
-  return `${days} days ago`;
+  // Detect date-only stored value: either "YYYY-MM-DD" or "...T00:00:00[.000][Z]"
+  // The old scraper saved only the date, resulting in midnight-only timestamps.
+  // We detect this from the raw string to avoid timezone ambiguity.
+  const str = String(isoString);
+  const isMidnightOnly =
+    /^\d{4}-\d{2}-\d{2}$/.test(str) ||              // "2026-08-17"
+    /T00:00:00(\.000)?(Z|[+-]\d{2}:\d{2})?$/.test(str); // "...T00:00:00" or "...T00:00:00Z"
+
+  const now     = Date.now();
+  const diffMs  = now - posted.getTime();
+  const diffMin = Math.floor(diffMs  / 60_000);
+  const diffHr  = Math.floor(diffMs  / 3_600_000);
+  const diffDay = Math.floor(diffMs  / 86_400_000);
+
+  // Future or just posted (within 60 s)
+  if (diffMs < 0)     return "Just now";
+  if (diffMin < 1)    return "Just now";
+
+  // Suppress misleading "13 hrs ago" for midnight-only timestamps
+  if (isMidnightOnly && diffHr >= 1) {
+    // Show a human date instead — e.g. "Today" / "Yesterday" / "Aug 15"
+    if (diffDay === 0) return "Today";
+    if (diffDay === 1) return "Yesterday";
+    return posted.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+
+  // Accurate real-time display
+  if (diffMin < 60)  return `${diffMin} min${diffMin === 1 ? "" : "s"} ago`;
+  if (diffHr  < 24)  return `${diffHr} hr${diffHr  === 1 ? "" : "s"} ago`;
+  if (diffDay === 1) return "Yesterday";
+  return `${diffDay} days ago`;
 }
 
 /** Short formatted deadline — e.g. "Jul 30" */
@@ -79,8 +115,15 @@ function TodayJobCard({ job, onViewDetails }) {
     ? job.description.replace(/\n+/g, " ").trim()
     : "No description available.";
 
-  // Posted time
-  const postedTime = timeAgo(job.postedAt || job.posted_at);
+  // Live-ticking posted time — recalculates every 60 s
+  const rawPostedAt = job.postedAt || job.posted_at;
+  const [postedTime, setPostedTime] = useState(() => timeAgo(rawPostedAt));
+
+  useEffect(() => {
+    setPostedTime(timeAgo(rawPostedAt)); // sync on mount / job change
+    const id = setInterval(() => setPostedTime(timeAgo(rawPostedAt)), 60_000);
+    return () => clearInterval(id);
+  }, [rawPostedAt]);
 
   // Apply link
   const applyLink = job.telegramMessageLink || job.applicationUrl || job.share_link;

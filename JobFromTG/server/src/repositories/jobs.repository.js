@@ -130,11 +130,39 @@ export async function findRecentJobs({ days = 5, limit = 50 } = {}) {
 }
 
 // ─────────────────────────────────────────────
-// findWeekJobs — last 5 days (rolling window)
+// findWeekJobs — yesterday back to 5 days ago
+// Explicitly excludes today so the right column
+// never duplicates the "Today's Post" left column.
 // ─────────────────────────────────────────────
 export async function findWeekJobs({ limit = 50 } = {}) {
-  return findRecentJobs({ days: 5, limit });
+  const now = new Date();
+
+  // UTC midnight of today — reliable boundary regardless of server timezone
+  const startOfTodayUTC = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    0, 0, 0, 0
+  ));
+
+  // 5 UTC days before today's midnight
+  const fiveDaysAgoUTC = new Date(startOfTodayUTC);
+  fiveDaysAgoUTC.setUTCDate(fiveDaysAgoUTC.getUTCDate() - 5);
+
+  const { data, error } = await supabase
+    .from("jobs")
+    .select(JOB_SELECT)
+    .eq("isActive",    true)
+    .eq("isDuplicate", false)
+    .gte("postedAt", fiveDaysAgoUTC.toISOString())   // from 5 days ago (UTC)...
+    .lt("postedAt",  startOfTodayUTC.toISOString())   // ...up to (not incl.) today (UTC)
+    .order("postedAt", { ascending: false })
+    .limit(limit);
+
+  assertOk({ error }, "findWeekJobs");
+  return data || [];
 }
+
 
 // ─────────────────────────────────────────────
 // Count helpers — used by stats endpoint

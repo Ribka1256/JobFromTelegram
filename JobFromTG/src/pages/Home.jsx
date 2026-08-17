@@ -8,15 +8,18 @@
  * Left column is sticky with its own scroll.
  * Right column tabs switch between /week and /recent without page reload.
  * Filter sidebar slides in from the left.
+ *
+ * Auto-refresh: polls /api/v1/stats every 5 minutes.
+ * If totalJobs has changed, silently re-fetches both job columns.
+ * No manual Reload button — the Python scheduler handles scraping.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import JobCard       from "../Components/JobCards.jsx";
 import TodayJobCard  from "../Components/TodayJobCard.jsx";
 import JobDetail     from "./JobDetail.jsx";
 import FilterSidebar from "../Components/FilterSidebar.jsx";
 import { HiSearch, HiFilter } from "react-icons/hi";
-import { IoReloadOutline } from "react-icons/io5";
 import "../css/Home.css";
 import "../css/Dashboard.css";
 import {
@@ -24,10 +27,10 @@ import {
   getTodayJobs,
   getWeekJobs,
   getStats,
-  startSync,
-  getSyncStatus,
 } from "../service/api";
 import { getJobType, getExperienceLevel } from "../utils/categorize.js";
+
+const POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 // ── Category labels ────────────────────────────────────────────
 const CATEGORY_LABELS = [
@@ -96,10 +99,8 @@ function Home() {
   // Stats
   const [stats,             setStats]             = useState(null);
 
-  // Sync / Reload state
-  const [reloading,  setReloading]  = useState(false);
-  const [syncPhase,  setSyncPhase]  = useState(null); // null | "scraping" | "importing" | "done" | "error"
-  const [syncError,  setSyncError]  = useState(false);
+  // Ref tracking last known totalJobs count for silent auto-refresh detection
+  const lastTotalJobsRef = useRef(null);
 
   // Modal
   const [selectedJob,       setSelectedJob]       = useState(null);
@@ -119,28 +120,35 @@ function Home() {
     }
   }, []);
 
-  // ── Fetch Right Column Jobs (last 5 days) ─────────────────
+  // ── Fetch Right Column Jobs (yesterday → 5 days back) ────────
   const fetchRight = useCallback(async () => {
     setRightLoading(true);
     setRightError(null);
     try {
       const data = await getWeekJobs(200);
-      setRightJobs(tagJobs(data || []));
+
+      // UTC midnight of today — timezone-safe cutoff
+      const n = new Date();
+      const todayCutoff = new Date(Date.UTC(
+        n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()
+      ));
+
+      // Exclude any job whose UTC calendar date is today.
+      // Normalise strings that lack a timezone suffix (treat them as UTC).
+      const pastOnly = (data || []).filter((job) => {
+        const raw = job.postedAt || job.posted_at;
+        if (!raw) return true;
+        const hasOffset = /[Zz]|[+-]\d{2}:?\d{2}$/.test(raw);
+        const parsed = new Date(hasOffset ? raw : raw + "Z");
+        return parsed < todayCutoff;
+      });
+
+      setRightJobs(tagJobs(pastOnly));
     } catch (err) {
       console.error("[Right]", err);
       setRightError("Could not load jobs.");
     } finally {
       setRightLoading(false);
-    }
-  }, []);
-
-  // ── Fetch Stats ──────────────────────────────────────────────
-  const fetchStats = useCallback(async () => {
-    try {
-      const data = await getStats();
-      setStats(data);
-    } catch (err) {
-      console.error("[Stats]", err);
     }
   }, []);
 
@@ -159,71 +167,6 @@ function Home() {
       setRightError("Search failed.");
     } finally {
       setRightLoading(false);
-    }
-  };
-
-  // ── Sync Reload (scrape Telegram → import → refresh UI) ───────
-  const handleReload = async () => {
-    if (reloading) return;
-    setReloading(true);
-    setSyncPhase("scraping");
-    setSyncError(false);
-    setSearchQuery("");
-    setSearchDraft("");
-
-    let finalStatus = "done";
-
-    try {
-      // Kick off backend sync (returns immediately with syncId)
-      await startSync();
-
-      // Poll every 2s, timeout after 10 minutes
-      const MAX_WAIT = 10 * 60 * 1000;
-      const startedAt = Date.now();
-
-      await new Promise((resolve) => {
-        const interval = setInterval(async () => {
-          // Safety: never poll forever
-          if (Date.now() - startedAt > MAX_WAIT) {
-            clearInterval(interval);
-            finalStatus = "error";
-            resolve();
-            return;
-          }
-          try {
-            const status = await getSyncStatus();
-            if (status?.phase && status.phase !== "done") setSyncPhase(status.phase);
-            if (status?.status === "done") {
-              finalStatus = "done";
-              clearInterval(interval);
-              resolve();
-            } else if (status?.status === "error") {
-              finalStatus = "error";
-              clearInterval(interval);
-              resolve();
-            }
-          } catch {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 2000);
-      });
-
-      // Refresh all data after sync
-      await Promise.all([fetchToday(), fetchRight(), fetchStats()]);
-    } catch (err) {
-      console.error("[Sync]", err);
-      finalStatus = "error";
-    } finally {
-      const hadError = finalStatus === "error";
-      setSyncError(hadError);
-      setSyncPhase(hadError ? "error" : "done");
-      // Brief flash then reset
-      setTimeout(() => {
-        setReloading(false);
-        setSyncPhase(null);
-        setSyncError(false);
-      }, hadError ? 3000 : 1500);
     }
   };
 
@@ -263,8 +206,35 @@ function Home() {
   useEffect(() => {
     fetchToday();
     fetchRight();
-    fetchStats();
-  }, [fetchToday, fetchRight, fetchStats]);
+  }, [fetchToday, fetchRight]);
+
+  // ── Auto-poll: check for new jobs every 5 minutes ──────
+  // Compares totalJobs from /stats; silently re-fetches if count changed.
+  useEffect(() => {
+    const poll = async () => {
+      try {
+        const data = await getStats();
+        if (!data) return;
+        setStats(data);
+        const newTotal = data.totalJobs ?? 0;
+        if (
+          lastTotalJobsRef.current !== null &&
+          newTotal !== lastTotalJobsRef.current
+        ) {
+          // New jobs arrived — silently refresh both feed columns
+          fetchToday();
+          fetchRight();
+        }
+        lastTotalJobsRef.current = newTotal;
+      } catch {
+        // Silent — never disrupt the UX
+      }
+    };
+
+    poll(); // run immediately to set baseline + initial stats
+    const id = setInterval(poll, POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [fetchToday, fetchRight]);
 
   const activeFilterCount =
     jobTypeFilters.length + experienceFilters.length + categoryFilters.length;
@@ -317,22 +287,6 @@ function Home() {
             />
           </div>
 
-          {/* Reload button */}
-          <button
-            type="button"
-            className={`dashboard-reload-btn ${reloading ? "spinning" : ""} ${syncError ? "error" : ""}`}
-            onClick={handleReload}
-            disabled={reloading}
-            title={reloading ? "Syncing Telegram channels…" : "Scrape & import latest jobs"}
-          >
-            <IoReloadOutline />
-            {syncPhase === "scraping"  && "Scraping…"}
-            {syncPhase === "cleaning"  && "Cleaning…"}
-            {syncPhase === "importing" && "Importing…"}
-            {syncPhase === "done"      && "Done ✓"}
-            {syncPhase === "error"     && "Error — Retry"}
-            {!syncPhase               && "RELOAD"}
-          </button>
         </form>
 
         {/* ── Category Pills ──────────────────────────── */}
@@ -391,7 +345,10 @@ function Home() {
           <div className="dashboard-right">
             <div className="right-tabs">
               <span className="right-tab-btn active" style={{ cursor: "default" }}>
-                Last 5 Days
+                Past 5 Days
+              </span>
+              <span className="right-tab-sub" style={{ fontSize: "0.75rem", color: "#888", alignSelf: "center", marginLeft: 4 }}>
+                (yesterday &amp; before)
               </span>
               {searchQuery && (
                 <span style={{ fontSize: "0.78rem", color: "#888", alignSelf: "center" }}>
@@ -415,9 +372,13 @@ function Home() {
               <RightSkeleton />
             ) : filteredRightJobs.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-state-icon">🔎</div>
-                <h4>No jobs found</h4>
-                <p>Try adjusting your filters or search terms.</p>
+                <div className="empty-state-icon">{searchQuery ? "🔎" : "📅"}</div>
+                <h4>{searchQuery ? "No jobs found" : "No posts from the past 5 days"}</h4>
+                <p>
+                  {searchQuery
+                    ? "Try adjusting your filters or search terms."
+                    : "Today's new posts are shown on the left. Yesterday's jobs will appear here once the scheduler has run on multiple days."}
+                </p>
               </div>
             ) : (
               <div className="right-cards-grid">
