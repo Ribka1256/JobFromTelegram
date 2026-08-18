@@ -155,3 +155,86 @@
     font-size: 1.2rem;
   }
 }
+
+/* ═══════════════════════════════════════════════
+   SYNC STATUS PILL
+   ═══════════════════════════════════════════════ */
+
+.sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(24, 170, 174, 0.09);
+  border: 1px solid rgba(24, 170, 174, 0.22);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: var(--body-font, 'Outfit', sans-serif);
+  color: #4a6580;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* "Not synced yet" variant — muted, no color accent */
+.sync-pill--never {
+  background: rgba(100, 116, 139, 0.08);
+  border-color: rgba(100, 116, 139, 0.2);
+  color: #7d94a8;
+}
+
+/* Status dot */
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cta-color, #18aaae);
+  flex-shrink: 0;
+  animation: sync-pulse 2.4s ease-in-out infinite;
+}
+
+.sync-pill--never .sync-dot {
+  background: #94a3b8;
+  animation: none;
+}
+
+@keyframes sync-pulse {
+  0%, 100% { opacity: 1;   }
+  50%       { opacity: 0.3; }
+}
+
+/* Desktop: show long label, hide short */
+.sync-label-short {
+  display: none;
+}
+
+/* ── Mobile (≤768px): show compact label ── */
+@media (max-width: 768px) {
+  .sync-label-long {
+    display: none;
+  }
+
+  .sync-label-short {
+    display: inline;
+  }
+
+  .sync-pill {
+    padding: 6px 9px;
+    gap: 5px;
+    font-size: 0.72rem;
+  }
+
+  /* Hide "Not synced yet" pill on mobile — no room + not actionable */
+  .sync-pill--never {
+    display: none;
+  }
+}
+
+/* ── Very narrow phones (≤360px): hide pill entirely ── */
+@media (max-width: 360px) {
+  .sync-pill {
+    display: none;
+  }
+}

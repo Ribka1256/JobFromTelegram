@@ -19,11 +19,12 @@ Lock file  : server/scheduler.lock  (prevents duplicate instances)
 import os
 import sys
 import time
+import json as _json
 import signal
 import subprocess
 import atexit
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # ── Project root: the directory this script lives in (server/) ─────────────
 PROJECT_ROOT: Path = Path(__file__).resolve().parent
@@ -37,6 +38,9 @@ INTERVAL_MINUTES: int = int(os.environ.get("JOBFEED_SCRAPE_INTERVAL_MINUTES", "3
 
 # ── Lock file ──────────────────────────────────────────────────────────────
 LOCK_FILE: Path = PROJECT_ROOT / "scheduler.lock"
+
+# ── Last-sync state file (shared with Express API) ─────────────────────────
+LAST_SYNC_FILE: Path = PROJECT_ROOT / ".last-sync.json"
 
 # ── Global: active child process (so Ctrl+C can terminate it) ──────────────
 _current_process: subprocess.Popen | None = None
@@ -108,6 +112,31 @@ def log(msg: str) -> None:
 
 def sep(char: str = "-", width: int = 50) -> None:
     print(char * width, flush=True)
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# Sync-state file — write after SUCCESSFUL pipeline only
+# ═════════════════════════════════════════════════════════════════════════
+
+def _record_successful_sync() -> None:
+    """
+    Write .last-sync.json so the frontend sync indicator reflects the
+    real timestamp of the last SUCCESSFUL scraper + importer run.
+    Called only when both steps return exit code 0.
+    A failed run must never call this function.
+    """
+    try:
+        now = datetime.now(timezone.utc)
+        payload = {
+            "lastSyncedAt": now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}Z",
+            "status": "success",
+            "jobsInserted": None,   # scheduler doesn't parse importer output
+            "source": "scheduler",
+        }
+        LAST_SYNC_FILE.write_text(_json.dumps(payload, indent=2), encoding="utf-8")
+        log("Sync timestamp recorded → .last-sync.json")
+    except Exception as exc:
+        log(f"Warning: Could not write sync timestamp: {exc}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -189,9 +218,12 @@ def run_pipeline() -> None:
 
     if importer_ok:
         log("Pipeline completed successfully.")
+        _record_successful_sync()     # ← update .last-sync.json on success only
     else:
         log("Pipeline finished with import errors.")
         log("Scheduler will retry the full pipeline on the next cycle.")
+        # NOTE: _record_successful_sync() is intentionally NOT called here.
+        # The previous successful timestamp is preserved in .last-sync.json.
 
 
 # ═══════════════════════════════════════════════════════════════════════════

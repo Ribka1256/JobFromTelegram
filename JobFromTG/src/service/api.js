@@ -131,3 +131,17 @@ export const getSyncStatus = async () => {
   const json = await res.json();
   return json.data;
 };
+
+/**
+ * Fetch the last successful pipeline sync timestamp.
+ * Used by the navbar sync indicator.
+ * Returns null gracefully on network errors so the navbar never breaks.
+ */
+export const getSyncTime = async () => {
+  try {
+    const { data } = await apiFetch(`${BASE}/stats/sync`);
+    return data;
+  } catch {
+    return null;
+  }
+};

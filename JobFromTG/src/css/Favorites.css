@@ -58,4 +58,20 @@
 
 p {
   color: #ffffff;
-}
+}
+
+@media (max-width: 768px) {
+  .favorite h2 {
+    font-size: 2rem;
+  }
+
+  .favorites-empty {
+    padding: 3rem 1.5rem;
+    margin: 1.5rem auto;
+  }
+
+  .favorites-empty p {
+    font-size: 1.2rem;
+  }
+  
+}

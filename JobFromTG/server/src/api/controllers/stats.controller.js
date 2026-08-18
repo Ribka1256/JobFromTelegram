@@ -3,8 +3,9 @@
  * HTTP layer for statistics endpoints.
  */
 
-import * as statsService from "../../services/stats.service.js";
-import { sendSuccess } from "../../utils/response.js";
+import * as statsService    from "../../services/stats.service.js";
+import { getLastSyncTime }  from "../../services/sync-state.service.js";
+import { sendSuccess }      from "../../utils/response.js";
 
 // GET /api/v1/stats
 export async function getStats(req, res, next) {
@@ -44,4 +45,12 @@ export async function getTopLocations(req, res, next) {
   } catch (err) {
     next(err);
   }
+}
+
+// GET /api/v1/stats/sync
+// Returns the last successful sync timestamp. Safe for public access —
+// contains no credentials or internal details.
+export function getSyncStatus(req, res) {
+  const data = getLastSyncTime();
+  sendSuccess(res, data);
 }

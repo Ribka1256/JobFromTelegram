@@ -20,4 +20,8 @@ router.get("/employment-types", statsCtrl.getEmploymentTypeBreakdown);
 // GET /api/v1/stats/locations
 router.get("/locations", statsCtrl.getTopLocations);
 
+// GET /api/v1/stats/sync — last successful pipeline sync timestamp
+// Safe for public frontend consumption (no secrets exposed)
+router.get("/sync", statsCtrl.getSyncStatus);
+
 export default router;

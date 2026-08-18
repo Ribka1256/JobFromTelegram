@@ -13,6 +13,7 @@ import { resolve, dirname }            from "path";
 import { fileURLToPath }               from "url";
 import { writeFileSync, readFileSync,
          existsSync }                  from "fs";
+import { recordSuccessfulSync }        from "../../services/sync-state.service.js";
 
 const __dirname  = dirname(fileURLToPath(import.meta.url));
 // controllers/ → api/ → src/ → server/  (3 levels up)
@@ -170,6 +171,10 @@ async function runSync(job) {
   job.doneAt = new Date().toISOString();
   job.logs.push(`[Sync] ✅ Done — ${job.inserted} new jobs added.`);
   writeState(job);
+
+  // Record the successful sync so the navbar indicator is updated.
+  // This fires on the web-triggered path; scheduler.py handles the other path.
+  recordSuccessfulSync({ jobsInserted: job.inserted, source: "web" });
 }
 
 // ─────────────────────────────────────────────
