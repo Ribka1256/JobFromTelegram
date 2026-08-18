@@ -173,8 +173,8 @@ async function runSync(job) {
   writeState(job);
 
   // Record the successful sync so the navbar indicator is updated.
-  // This fires on the web-triggered path; scheduler.py handles the other path.
-  recordSuccessfulSync({ jobsInserted: job.inserted, source: "web" });
+  // This fires on the web-triggered path; GitHub Actions handles the other path.
+  await recordSuccessfulSync({ jobsInserted: job.inserted, source: "web" });
 }
 
 // ─────────────────────────────────────────────

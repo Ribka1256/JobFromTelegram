@@ -50,7 +50,11 @@ export async function getTopLocations(req, res, next) {
 // GET /api/v1/stats/sync
 // Returns the last successful sync timestamp. Safe for public access —
 // contains no credentials or internal details.
-export function getSyncStatus(req, res) {
-  const data = getLastSyncTime();
-  sendSuccess(res, data);
+export async function getSyncStatus(req, res, next) {
+  try {
+    const data = await getLastSyncTime();
+    sendSuccess(res, data);
+  } catch (err) {
+    next(err);
+  }
 }

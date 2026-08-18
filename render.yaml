@@ -1,11 +1,10 @@
 # render.yaml
-# Defines all three Render services for JobFeed v2.
+# Defines the two Render services for JobFeed v2.
+# The scheduler is handled by GitHub Actions (free) — no Render worker needed.
 # Docs: https://render.com/docs/blueprint-spec
 
 services:
   # ── 1. Express API (Web Service) ──────────────────────────────────────────
-  # Serves the HTTP API that the React frontend talks to.
-  # Must be running at all times for the app to work.
   - type: web
     name: jobfeed-api
     runtime: node
@@ -29,38 +28,7 @@ services:
       - key: CORS_ORIGIN
         sync: false
 
-  # ── 2. Telegram Scraper + Importer (Background Worker) ────────────────────
-  # Runs scheduler.py which calls telegram_scraper.py then import_jobs.mjs
-  # every 30 minutes. This is what keeps job data fresh.
-  # Uses the "worker" type — no HTTP port needed.
-  - type: worker
-    name: jobfeed-scheduler
-    runtime: python
-    buildCommand: >
-      cd JobFromTG/server &&
-      pip install -r requirements.txt &&
-      npm install
-    startCommand: cd JobFromTG/server && python scheduler.py
-    envVars:
-      - key: TELEGRAM_API_ID
-        sync: false
-      - key: TELEGRAM_API_HASH
-        sync: false
-      - key: TELEGRAM_PHONE
-        sync: false
-      - key: CEREBRAS_API_KEY
-        sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: DATABASE_URL
-        sync: false
-      - key: JOBFEED_SCRAPE_INTERVAL_MINUTES
-        value: "30"
-
-  # ── 3. React Frontend (Static Site) ───────────────────────────────────────
-  # Compiled to static files. Render serves them on a CDN.
+  # ── 2. React Frontend (Static Site) ───────────────────────────────────────
   - type: web
     name: jobfeed-ui
     runtime: static

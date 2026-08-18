@@ -1,0 +1,101 @@
+name: JobFeed Sync Pipeline
+
+# Runs every 30 minutes automatically.
+# Can also be triggered manually from the GitHub Actions tab.
+on:
+  schedule:
+    - cron: '0,30 * * * *'   # Every 30 min: at :00 and :30 of every hour
+  workflow_dispatch:           # Allow manual trigger
+
+jobs:
+  sync:
+    name: Scrape Telegram + Import to Supabase
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: JobFromTG/server
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Python setup ──────────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: JobFromTG/server/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # ── 3. Restore Telethon session file ────────────────────────────────────
+      # session.session is stored as a base64-encoded GitHub secret.
+      # To generate: run this PowerShell command on your machine and copy output:
+      #   [Convert]::ToBase64String([IO.File]::ReadAllBytes("session.session"))
+      # Then add it as secret TELETHON_SESSION_B64 in GitHub → Settings → Secrets.
+      - name: Restore Telethon session file
+        run: echo "${{ secrets.TELETHON_SESSION_B64 }}" | base64 --decode > session.session
+
+      # ── 4. Run Telegram scraper ──────────────────────────────────────────────
+      # Reads from Telegram, writes jobs to jobs.json
+      - name: Run Telegram scraper
+        env:
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          TELEGRAM_PHONE: ${{ secrets.TELEGRAM_PHONE }}
+          CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+        run: python telegram_scraper.py
+
+      # ── 5. Node.js setup ─────────────────────────────────────────────────────
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: JobFromTG/server/package-lock.json
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      # ── 6. Start Express API in background ──────────────────────────────────
+      # import_jobs.mjs calls http://localhost:5000/api/v1/internal/...
+      # so the server must be running during the import step.
+      - name: Start Express API server
+        env:
+          NODE_ENV: production
+          PORT: 5000
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          CORS_ORIGIN: '*'
+        run: |
+          node server.js &
+          echo "Waiting for API to be ready..."
+          sleep 5
+          curl -f http://localhost:5000/health || (echo "API failed to start" && exit 1)
+
+      # ── 7. Run job importer ──────────────────────────────────────────────────
+      # Reads jobs.json, deduplicates, inserts new jobs into Supabase via the API
+      - name: Import jobs into Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: node scripts/import_jobs.mjs
+
+      # ── 8. Record successful sync ────────────────────────────────────────────
+      # Notifies the production API to update the "Last Synced" timestamp
+      # in Supabase so the navbar indicator shows the correct time.
+      - name: Record sync timestamp
+        run: |
+          curl -s -X POST "${{ secrets.API_URL }}/api/v1/internal/record-sync" \
+            -H "Content-Type: application/json" \
+            -d '{"source":"github-actions"}' \
+            -w "\nHTTP %{http_code}" || echo "Warning: could not record sync (non-fatal)"
