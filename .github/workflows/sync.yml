@@ -46,10 +46,10 @@ jobs:
         run: python telegram_scraper.py
 
       # ── 5. Node.js setup ─────────────────────────────────────────────────────
-      - name: Set up Node.js 20
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: JobFromTG/server/package-lock.json
 
@@ -72,8 +72,18 @@ jobs:
         run: |
           node server.js &
           echo "Waiting for API to be ready..."
-          sleep 5
-          curl -f http://localhost:5000/health || (echo "API failed to start" && exit 1)
+          for i in 1 2 3 4 5 6; do
+            sleep 5
+            if curl -sf http://localhost:5000/health; then
+              echo "API is ready!"
+              break
+            fi
+            echo "Attempt $i: API not ready yet..."
+            if [ $i -eq 6 ]; then
+              echo "API failed to start after 30s"
+              exit 1
+            fi
+          done
 
       # ── 7. Run job importer ──────────────────────────────────────────────────
       # Reads jobs.json, deduplicates, inserts new jobs into Supabase via the API
