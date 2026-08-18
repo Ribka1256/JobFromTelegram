@@ -22,7 +22,8 @@ export const config = {
   databaseUrl: require_env("DATABASE_URL"),
 
   // Supabase
-  supabaseUrl:     process.env.VITE_SUPABASE_URL,
+  // Priority: SUPABASE_URL (production/CI) → VITE_SUPABASE_URL (local dev)
+  supabaseUrl:     process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
 
   // Cerebras

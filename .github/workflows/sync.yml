@@ -59,6 +59,29 @@ jobs:
       # ── 6. Start Express API in background ──────────────────────────────────
       # import_jobs.mjs calls http://localhost:5000/api/v1/internal/...
       # so the server must be running during the import step.
+      - name: Verify required environment variables
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: |
+          missing=0
+          for var in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY DATABASE_URL DIRECT_URL; do
+            if [ -z "${!var}" ]; then
+              echo "❌ Missing GitHub Secret: $var"
+              missing=1
+            else
+              echo "✅ $var is set"
+            fi
+          done
+          if [ "$missing" -eq 1 ]; then
+            echo ""
+            echo "Add missing secrets at:"
+            echo "GitHub repo → Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+
       - name: Start Express API server
         env:
           NODE_ENV: production
