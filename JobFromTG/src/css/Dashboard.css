@@ -565,9 +565,9 @@
   font-family: var(--body-font);
 }
 
-/* ── Responsive ── */
-
-/* Tablet: stack columns */
+/* =====================================================
+   RESPONSIVE — Tablet (769 – 1024 px)
+   ===================================================== */
 @media (max-width: 1024px) {
   .dashboard-body {
     flex-direction: column;
@@ -583,10 +583,15 @@
     border-bottom: 2px solid rgba(20, 36, 63, 0.1);
     padding-bottom: 20px;
     overflow-y: visible;
+    top: auto;
   }
 
   .dashboard-right {
     padding-left: 0;
+    max-height: none;
+    overflow-y: visible;
+    position: static;
+    top: auto;
   }
 
   .right-cards-grid {
@@ -598,55 +603,305 @@
   }
 }
 
-/* Mobile */
-@media (max-width: 640px) {
-  .dashboard-search-row {
-    padding: 10px 12px 0;
-    flex-wrap: wrap;
-    gap: 8px;
+/* =====================================================
+   Desktop: always show accordion body, hide chevron
+   ===================================================== */
+@media (min-width: 769px) {
+  .mobile-section-body {
+    display: block !important;
   }
 
-  .dashboard-search-wrap {
-    order: 1;
-    flex: 1 1 100%;
+  .mobile-chevron {
+    display: none !important;
   }
 
-  .filter-trigger-btn {
-    order: 2;
-  }
-
-  .dashboard-reload-btn {
-    order: 3;
-  }
-
-  .dashboard-body {
-    padding: 10px 12px 30px;
-  }
-
-  .right-cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .category-pills-row {
-    top: 156px;
-    padding: 8px 12px 0;
+  .section-header {
+    cursor: default;
   }
 
   .right-tabs {
-    flex-wrap: wrap;
+    cursor: default;
   }
 
-  .right-tab-total {
-    margin-left: 0;
+  /* Restore desktop right-tab-sub layout */
+  .right-tab-sub {
+    font-size: 0.75rem;
+    color: #888;
+    align-self: center;
+    margin-left: 4px;
   }
 }
 
+/* =====================================================
+   RESPONSIVE — Mobile (≤768px)
+   ===================================================== */
+@media (max-width: 768px) {
+
+  /* ── Dashboard wrapper ── */
+  .dashboard-page {
+    padding-top: 66px;
+  }
+
+  /* ── Search Row: [ FILTER ] [ SEARCH BAR ] in one row ── */
+  .dashboard-search-row {
+    top: 66px;
+    flex-wrap: nowrap;
+    padding: 10px 14px 8px;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* Filter button: icon-only */
+  .filter-trigger-btn {
+    order: 1;
+    flex-shrink: 0;
+    padding: 10px 13px;
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  /* Hide "FILTERS" label text on mobile */
+  .filter-btn-text {
+    display: none;
+  }
+
+  /* Search takes remaining width */
+  .dashboard-search-wrap {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dashboard-search-input {
+    font-size: 0.9rem;
+    padding: 10px 14px 10px 38px;
+  }
+
+  /* ── Category Pills: wrap to ≤2 rows ── */
+  .category-pills-row {
+    top: 108px;
+    padding: 8px 14px 6px;
+    overflow-x: visible;
+    white-space: normal;
+    justify-content: flex-start;
+    display: block;           /* remove flex centering — let pills flow */
+  }
+
+  .category-pills-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 5px;
+    padding-bottom: 4px;
+    white-space: normal;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .category-pill {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  /* ── Dashboard Body: single column, no side padding ── */
+  .dashboard-body {
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    min-height: unset;
+  }
+
+  /* ── Left Column: disable desktop sticky scrolling ── */
+  .dashboard-left {
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: visible;
+    position: static;
+    top: auto;
+    border-right: none;
+    border-bottom: none;
+    padding-right: 0;
+    padding-bottom: 0;
+  }
+
+  /* ── Right Column: disable desktop sticky scrolling ── */
+  .dashboard-right {
+    max-height: none;
+    overflow-y: visible;
+    position: static;
+    top: auto;
+    padding-left: 0;
+    flex: none;
+    width: 100%;
+  }
+
+  /* ── Section Header: sticky accordion trigger ── */
+  .section-header {
+    position: sticky;
+    top: 172px;             /* navbar(66) + search(42) + pills(64) */
+    z-index: 40;
+    background: var(--background-color);
+    cursor: pointer;
+    margin-bottom: 0;
+    padding: 14px 14px 12px;
+    border-bottom: 2px solid rgba(20, 36, 63, 0.1);
+    border-radius: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+
+  .section-header:active {
+    background: rgba(20, 36, 63, 0.05);
+  }
+
+  /* ── Right Tabs: styled as mobile section header ── */
+  .right-tabs {
+    position: sticky;
+    top: 172px;
+    z-index: 39;
+    background: var(--background-color);
+    cursor: pointer;
+    margin-bottom: 0;
+    padding: 14px 14px 12px;
+    border-bottom: 2px solid rgba(20, 36, 63, 0.1);
+    flex-wrap: nowrap;
+    gap: 8px;
+    align-items: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+
+  .right-tabs:active {
+    background: rgba(20, 36, 63, 0.05);
+  }
+
+  /* Hide desktop sub-label inside right-tabs on mobile */
+  .right-tab-sub {
+    display: none;
+  }
+
+  /* "Past 5 Days" pill → act as plain section title */
+  .right-tab-btn.active {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--headline-color);
+    font-size: 1rem;
+    font-weight: 800;
+    font-family: var(--headline-font);
+    letter-spacing: 0.01em;
+    cursor: inherit;
+  }
+
+  .right-tab-total {
+    margin-left: auto;
+    font-size: 0.72rem;
+  }
+
+  /* ── Mobile Toggle Chevron ── */
+  .mobile-chevron {
+    display: block !important;
+    font-size: 1.2rem;
+    color: #666;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+  }
+
+  .mobile-chevron.open {
+    transform: rotate(180deg);
+  }
+
+  /* ── Collapsible Section Body ── */
+  .mobile-section-body {
+    display: none;
+    overflow: hidden;
+  }
+
+  .mobile-section-body.open {
+    display: block;
+    padding: 12px 14px 20px;
+  }
+
+  /* ── Cards: single column on mobile ── */
+  .right-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .today-cards-list {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Skeletons: single column ── */
+  .right-cards-grid .skeleton-card {
+    height: 180px;
+  }
+
+  /* ── Empty state: compact on mobile ── */
+  .empty-state {
+    padding: 28px 12px;
+  }
+
+  /* ── Section header: ensure badge lines up ── */
+  .section-header .section-badge.today {
+    margin-left: 4px;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE — Small phones (≤480px)
+   ===================================================== */
 @media (max-width: 480px) {
   .dashboard-page {
-    padding-top: 68px;
+    padding-top: 62px;
   }
 
   .dashboard-search-row {
-    top: 68px;
+    top: 62px;
+    padding: 9px 12px 7px;
+  }
+
+  .category-pills-row {
+    top: 104px;
+    padding: 7px 12px 5px;
+  }
+
+  /* Section sticky tops: navbar(62) + search(40) + pills(60) */
+  .section-header {
+    top: 162px;
+  }
+
+  .right-tabs {
+    top: 162px;
+  }
+
+  .category-pill {
+    font-size: 0.67rem;
+    padding: 3px 9px;
+  }
+
+  .mobile-section-body.open {
+    padding: 10px 12px 16px;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE — Very narrow phones (≤360px)
+   ===================================================== */
+@media (max-width: 360px) {
+  .category-pill {
+    font-size: 0.63rem;
+    padding: 3px 7px;
+  }
+
+  .filter-trigger-btn {
+    padding: 10px 11px;
+    min-width: 40px;
   }
 }

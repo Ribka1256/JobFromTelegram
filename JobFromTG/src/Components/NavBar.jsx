@@ -30,7 +30,7 @@ function Navbar() {
             <FaArrowLeft size={20} />
           </Link>
           <Link to="/favorite" className="nav-link" onClick={savedBtn}>
-            <MdBookmark className="nav-icon" /> SAVED JOBS
+            <MdBookmark className="nav-icon" /><span className="nav-link-text"> SAVED JOBS</span>
           </Link>
         </div>
       </nav>

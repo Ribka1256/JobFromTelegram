@@ -19,7 +19,7 @@ import JobCard       from "../Components/JobCards.jsx";
 import TodayJobCard  from "../Components/TodayJobCard.jsx";
 import JobDetail     from "./JobDetail.jsx";
 import FilterSidebar from "../Components/FilterSidebar.jsx";
-import { HiSearch, HiFilter } from "react-icons/hi";
+import { HiSearch, HiFilter, HiChevronDown } from "react-icons/hi";
 import "../css/Home.css";
 import "../css/Dashboard.css";
 import {
@@ -81,6 +81,10 @@ function Home() {
   const [jobTypeFilters,    setJobTypeFilters]    = useState([]);
   const [experienceFilters, setExperienceFilters] = useState([]);
   const [categoryFilters,   setCategoryFilters]   = useState([]);
+
+  // Mobile accordion
+  const [todayOpen,         setTodayOpen]         = useState(true);
+  const [last5Open,         setLast5Open]         = useState(true);
 
   // Search
   const [searchQuery,       setSearchQuery]       = useState("");
@@ -267,7 +271,8 @@ function Home() {
             className="filter-trigger-btn"
             onClick={() => setShowFilters(true)}
           >
-            <HiFilter className="filter-icon" /> FILTERS
+            <HiFilter className="filter-icon" />
+            <span className="filter-btn-text">FILTERS</span>
             {activeFilterCount > 0 && (
               <span className="filter-trigger-badge">{activeFilterCount}</span>
             )}
@@ -309,45 +314,65 @@ function Home() {
 
           {/* ── LEFT — Today's Posts ──────────────────── */}
           <div className="dashboard-left">
-            <div className="section-header">
+            {/* Section header — doubles as mobile accordion toggle */}
+            <div
+              className="section-header"
+              onClick={() => setTodayOpen((p) => !p)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setTodayOpen((p) => !p)}
+            >
               <span className="section-title">TODAY'S POST</span>
               <span className="section-badge today">
                 {todayLoading ? "…" : `${filteredTodayJobs.length} Jobs`}
               </span>
+              <HiChevronDown
+                className={`mobile-chevron ${todayOpen ? "open" : ""}`}
+              />
             </div>
 
-            {todayError && (
-              <div className="dashboard-error">{todayError}</div>
-            )}
+            {/* Collapsible body — always visible on desktop via CSS */}
+            <div className={`mobile-section-body ${todayOpen ? "open" : ""}`}>
+              {todayError && (
+                <div className="dashboard-error">{todayError}</div>
+              )}
 
-            {todayLoading ? (
-              <TodaySkeleton />
-            ) : filteredTodayJobs.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">📭</div>
-                <h4>No jobs posted today</h4>
-                <p>Check back later or browse recent posts →</p>
-              </div>
-            ) : (
-              <div className="today-cards-list">
-                {filteredTodayJobs.map((job) => (
-                  <TodayJobCard
-                    key={job.telegramMessageLink || job.id}
-                    job={job}
-                    onViewDetails={setSelectedJob}
-                  />
-                ))}
-              </div>
-            )}
+              {todayLoading ? (
+                <TodaySkeleton />
+              ) : filteredTodayJobs.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">📭</div>
+                  <h4>No jobs posted today</h4>
+                  <p>Check back later or browse recent posts →</p>
+                </div>
+              ) : (
+                <div className="today-cards-list">
+                  {filteredTodayJobs.map((job) => (
+                    <TodayJobCard
+                      key={job.telegramMessageLink || job.id}
+                      job={job}
+                      onViewDetails={setSelectedJob}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* ── RIGHT — Last 5 Days ───────────────── */}
           <div className="dashboard-right">
-            <div className="right-tabs">
-              <span className="right-tab-btn active" style={{ cursor: "default" }}>
+            {/* Right tabs — doubles as mobile accordion toggle */}
+            <div
+              className="right-tabs"
+              onClick={() => setLast5Open((p) => !p)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setLast5Open((p) => !p)}
+            >
+              <span className="right-tab-btn active">
                 Past 5 Days
               </span>
-              <span className="right-tab-sub" style={{ fontSize: "0.75rem", color: "#888", alignSelf: "center", marginLeft: 4 }}>
+              <span className="right-tab-sub">
                 (yesterday &amp; before)
               </span>
               {searchQuery && (
@@ -355,6 +380,9 @@ function Home() {
                   Results for &quot;{searchQuery}&quot;
                 </span>
               )}
+              <HiChevronDown
+                className={`mobile-chevron ${last5Open ? "open" : ""}`}
+              />
               <span className="right-tab-total">
                 {rightLoading
                   ? "…"
@@ -364,33 +392,36 @@ function Home() {
               </span>
             </div>
 
-            {rightError && (
-              <div className="dashboard-error">{rightError}</div>
-            )}
+            {/* Collapsible body — always visible on desktop via CSS */}
+            <div className={`mobile-section-body ${last5Open ? "open" : ""}`}>
+              {rightError && (
+                <div className="dashboard-error">{rightError}</div>
+              )}
 
-            {rightLoading ? (
-              <RightSkeleton />
-            ) : filteredRightJobs.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">{searchQuery ? "🔎" : "📅"}</div>
-                <h4>{searchQuery ? "No jobs found" : "No posts from the past 5 days"}</h4>
-                <p>
-                  {searchQuery
-                    ? "Try adjusting your filters or search terms."
-                    : "Today's new posts are shown on the left. Yesterday's jobs will appear here once the scheduler has run on multiple days."}
-                </p>
-              </div>
-            ) : (
-              <div className="right-cards-grid">
-                {filteredRightJobs.map((job) => (
-                  <JobCard
-                    key={job.telegramMessageLink || job.id}
-                    job={job}
-                    onViewDetails={setSelectedJob}
-                  />
-                ))}
-              </div>
-            )}
+              {rightLoading ? (
+                <RightSkeleton />
+              ) : filteredRightJobs.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">{searchQuery ? "🔎" : "📅"}</div>
+                  <h4>{searchQuery ? "No jobs found" : "No posts from the past 5 days"}</h4>
+                  <p>
+                    {searchQuery
+                      ? "Try adjusting your filters or search terms."
+                      : "Today's new posts are shown on the left. Yesterday's jobs will appear here once the scheduler has run on multiple days."}
+                  </p>
+                </div>
+              ) : (
+                <div className="right-cards-grid">
+                  {filteredRightJobs.map((job) => (
+                    <JobCard
+                      key={job.telegramMessageLink || job.id}
+                      job={job}
+                      onViewDetails={setSelectedJob}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
