@@ -32,22 +32,17 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      # ── 3. Restore Telethon session file ────────────────────────────────────
-      # session.session is stored as a base64-encoded GitHub secret.
-      # To generate: run this PowerShell command on your machine and copy output:
-      #   [Convert]::ToBase64String([IO.File]::ReadAllBytes("session.session"))
-      # Then add it as secret TELETHON_SESSION_B64 in GitHub → Settings → Secrets.
-      - name: Restore Telethon session file
-        run: echo "${{ secrets.TELETHON_SESSION_B64 }}" | base64 --decode > session.session
-
       # ── 4. Run Telegram scraper ──────────────────────────────────────────────
-      # Reads from Telegram, writes jobs to jobs.json
+      # Reads from Telegram, writes jobs to jobs.json.
+      # TELETHON_STRING_SESSION is used instead of a binary file — it's portable
+      # and version-independent. Generate it locally with export_string_session.py.
       - name: Run Telegram scraper
         env:
           TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
           TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
           TELEGRAM_PHONE: ${{ secrets.TELEGRAM_PHONE }}
           CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+          TELETHON_STRING_SESSION: ${{ secrets.TELETHON_STRING_SESSION }}
         run: python telegram_scraper.py
 
       # ── 5. Node.js setup ─────────────────────────────────────────────────────

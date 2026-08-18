@@ -2,7 +2,7 @@
 # Install with: pip install -r requirements.txt
 
 # Telegram
-telethon==1.37.0
+telethon==1.44.0
 
 # HTTP (async API calls to Cerebras + Express)
 aiohttp==3.10.5

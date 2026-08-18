@@ -1,7 +1,9 @@
 import asyncio
 import json
+import os
 import re
 from telethon import TelegramClient
+from telethon.sessions import StringSession
 
 # ==========================
 # Telegram API Credentials
@@ -137,8 +139,17 @@ def parse_job(message, channel):
 
 
 async def scrape():
+    # Use StringSession when running in CI (GitHub Actions).
+    # Falls back to file-based session for local development.
+    session_string = os.environ.get("TELETHON_STRING_SESSION")
+    if session_string:
+        session = StringSession(session_string)
+        print("Using StringSession (CI mode).")
+    else:
+        session = "session"  # local file session
+        print("Using file session (local mode).")
 
-    client = TelegramClient("session", API_ID, API_HASH)
+    client = TelegramClient(session, API_ID, API_HASH)
 
     await client.start(phone=PHONE)
 
