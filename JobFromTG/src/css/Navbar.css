@@ -1,8 +1,13 @@
-/* Navbar.css */
+/* =====================================================
+   Navbar.css — JobFeed v2
+   Visual refinement: clean white surface, Syne brand,
+   refined button system, no aggressive scale transforms.
+   ===================================================== */
 
 .navbar {
-  background-color: var(--navBar-bgColor, #f0ecec);
-  padding: 12px 28px;
+  background-color: var(--color-surface);
+  padding: 0 28px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -12,10 +17,11 @@
   left: 0;
   width: 100%;
   gap: 2rem;
-  margin: 0 auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-navbar);
+  border-bottom: 1px solid var(--color-border);
 }
 
+/* ── Brand ── */
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -31,95 +37,102 @@
 }
 
 .navbar-logo {
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   object-fit: cover;
-  border-radius: 10px;
-  background-color: aliceblue;
+  border-radius: var(--radius-md);
   flex-shrink: 0;
 }
 
 .brand-text {
-  color: #14243f;
-  font-size: 1.6rem;
-  font-weight: 900;
-  font-family: var(--logo-font);
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-logo);
   line-height: 1;
+  letter-spacing: -0.01em;
 }
 
 .navbar-subtitle {
-  color: #6b7280;
-  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
   font-weight: 500;
-  font-family: var(--body-font);
-  letter-spacing: 0.02em;
+  font-family: var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
+/* ── Nav Links ── */
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-right: 8px;
+  gap: 0.75rem;
 }
 
 .nav-link {
-  background-color: #14243f;
-  padding: 10px 18px;
-  border-radius: 10px;
-  color: white;
+  background-color: var(--color-primary);
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
   font-weight: 600;
-  font-size: 0.9rem;
-  font-family: var(--body-font);
+  font-size: 0.82rem;
+  font-family: var(--font-body);
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 6px;
+  letter-spacing: 0.02em;
   transition:
-    background-color 0.2s ease-in-out,
-    transform 0.2s ease-in-out,
-    box-shadow 0.2s ease-in-out;
+    background-color var(--t-fast),
+    box-shadow var(--t-fast),
+    transform var(--t-fast);
 }
 
 .nav-link:hover {
-  background-color: #033873;
-  color: white;
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.nav-link:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .back-button {
-  display: none; /* Initially hidden, will be shown on smaller screens */
+  display: none;
   background-color: var(--pill-active-color);
-  padding: 10px 18px;
-  border-radius: 10px;
-  color: white;
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
   font-weight: 600;
-  font-size: 0.9rem;
-  font-family: var(--body-font);
+  font-size: 0.82rem;
+  font-family: var(--font-body);
   text-decoration: none;
   align-items: center;
   gap: 6px;
   transition:
-    background-color 0.2s ease-in-out,
-    transform 0.2s ease-in-out,
-    box-shadow 0.2s ease-in-out;
+    background-color var(--t-fast),
+    transform var(--t-fast);
 }
 
 .back-button:hover {
-  background-color: var(--pill-hover-color);
-  color: white;
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-accent);
+  color: var(--color-text-inverse);
+  transform: translateY(-1px);
 }
 
 .nav-icon {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   vertical-align: middle;
 }
 
+/* ── Responsive ── */
 @media (max-width: 768px) {
   .navbar {
-    padding: 10px 16px;
+    padding: 0 14px;
+    height: 58px;
     gap: 0.75rem;
   }
 
@@ -128,31 +141,30 @@
   }
 
   .brand-text {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
   }
 
   .nav-link {
-    padding: 10px 12px; /* icon-only square */
+    padding: 9px 11px;
   }
 
-  /* Hide text label — show bookmark icon only */
   .nav-link-text {
     display: none;
   }
 
   .nav-icon {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 }
 
 @media (max-width: 480px) {
   .navbar-logo {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
   }
 
   .brand-text {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 }
 
@@ -164,77 +176,63 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(24, 170, 174, 0.09);
-  border: 1px solid rgba(24, 170, 174, 0.22);
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 0.75rem;
+  background: var(--color-accent-dim);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-pill);
+  padding: 5px 11px;
+  font-size: 0.73rem;
   font-weight: 500;
-  font-family: var(--body-font, 'Outfit', sans-serif);
-  color: #4a6580;
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
   white-space: nowrap;
   flex-shrink: 0;
   cursor: default;
   user-select: none;
+  letter-spacing: 0.01em;
 }
 
-/* "Not synced yet" variant — muted, no color accent */
 .sync-pill--never {
-  background: rgba(100, 116, 139, 0.08);
-  border-color: rgba(100, 116, 139, 0.2);
-  color: #7d94a8;
+  background: rgba(100, 116, 139, 0.06);
+  border-color: rgba(100, 116, 139, 0.15);
+  color: var(--color-text-muted);
 }
 
-/* Status dot */
 .sync-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--cta-color, #18aaae);
+  background: var(--color-accent);
   flex-shrink: 0;
   animation: sync-pulse 2.4s ease-in-out infinite;
 }
 
 .sync-pill--never .sync-dot {
-  background: #94a3b8;
+  background: var(--color-text-muted);
   animation: none;
 }
 
 @keyframes sync-pulse {
-  0%, 100% { opacity: 1;   }
-  50%       { opacity: 0.3; }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
 }
 
-/* Desktop: show long label, hide short */
-.sync-label-short {
-  display: none;
-}
+.sync-label-short { display: none; }
 
-/* ── Mobile (≤768px): show compact label ── */
 @media (max-width: 768px) {
-  .sync-label-long {
-    display: none;
-  }
-
-  .sync-label-short {
-    display: inline;
-  }
+  .sync-label-long  { display: none; }
+  .sync-label-short { display: inline; }
 
   .sync-pill {
-    padding: 6px 9px;
-    gap: 5px;
-    font-size: 0.72rem;
+    padding: 5px 8px;
+    gap: 4px;
+    font-size: 0.7rem;
   }
 
-  /* Hide "Not synced yet" pill on mobile — no room + not actionable */
   .sync-pill--never {
     display: none;
   }
 }
 
-/* ── Very narrow phones (≤360px): hide pill entirely ── */
 @media (max-width: 360px) {
-  .sync-pill {
-    display: none;
-  }
+  .sync-pill { display: none; }
 }

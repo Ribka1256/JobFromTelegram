@@ -1,34 +1,54 @@
-/* JobDetail.css */
+/* =====================================================
+   JobDetail.css — JobFeed v2
+   Visual refinement: clean modal, Syne title,
+   brand-consistent colors, entry animation.
+   ===================================================== */
+
 .job-detail-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(10, 20, 40, 0.55);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.18s ease both;
 }
 
 .job-detail-modal {
-  background: white;
+  background: var(--color-surface);
   width: 100%;
   max-width: 700px;
   height: 90vh;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-modal);
+  animation: modalEnter 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* Header */
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── Header ── */
 .jd-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #eee;
-  background: #fafafa;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  flex-shrink: 0;
 }
 
 .jd-company {
@@ -38,10 +58,10 @@
 }
 
 .jd-icon-container {
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
-  background: #d4d4d4;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,74 +69,98 @@
 }
 
 .jd-icon {
-  font-size: 1.4rem;
-  color: var(--pill-active-color);
+  font-size: 1.3rem;
+  color: var(--color-accent);
 }
 
 .jd-company-name {
-  font-size: 18px;
+  font-size: 1rem;
   font-weight: 700;
-  color: var(--headline-color);
-  letter-spacing: 0.03em;
-  font-family: var(--headline-font);
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+  font-family: var(--font-heading);
 }
 
 .jd-category {
-  font-size: 14px;
-  color: var(--cta-color);
+  font-size: 0.75rem;
+  color: var(--color-accent);
   font-weight: 600;
+  font-family: var(--font-body);
+  letter-spacing: 0.03em;
 }
 
 .jd-close {
-  border: none;
-  background: none;
-  font-size: 1.2rem;
-  color: #888;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  font-size: 1rem;
+  color: var(--color-text-muted);
   cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
 }
 
-/* Body */
+.jd-close:hover {
+  color: var(--color-text);
+  background: var(--color-surface-muted);
+  border-color: var(--color-border-strong);
+}
+
+/* ── Body ── */
 .jd-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.75rem;
+  padding: 1.6rem 1.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
 }
 
 .jd-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--color-text);
   margin-bottom: 1rem;
-  font-family: var(--headline-font);
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .jd-meta-pills {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
   margin-bottom: 1.25rem;
 }
 
 .jd-pill {
-  background-color: var(--pill-active-color);
-  color: #ddd;
-  border-radius: 80px;
-  padding: 0.5rem 1.5rem;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 1rem;
   font-weight: 500;
-  border: none;
-  cursor: pointer;
-  font-size: 0.85rem;
+  border: 1px solid var(--color-border-strong);
+  cursor: default;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .jd-pill .jd-icon {
-  margin-right: 0.4rem;
-  font-size: 1rem;
+  margin-right: 0;
+  font-size: 0.9rem;
+  color: var(--color-accent);
 }
 
 .jd-divider {
   height: 1px;
-  background: #eee;
-  margin: 1.25rem 0;
+  background: var(--color-border);
+  margin: 1.2rem 0;
 }
 
 .jd-two-col {
@@ -126,22 +170,28 @@
 }
 
 .jd-label {
-  font-size: 0.75rem;
-  color: #999;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
   font-weight: 700;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.4rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-body);
 }
 
 .jd-value {
   font-weight: 700;
-  color: #111;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
 }
 
 .jd-text {
-  color: #333;
-  line-height: 1.6;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
   margin-top: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
 }
 
 .jd-checklist {
@@ -149,37 +199,44 @@
   margin-top: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .jd-checklist li {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
-  color: #333;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  line-height: 1.6;
 }
 
 .jd-check {
-  color: #5b4fe0;
+  color: var(--color-accent);
   font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .jd-benefits-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-top: 0.75rem;
 }
 
 .jd-benefit-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
   display: flex;
   gap: 0.6rem;
   align-items: flex-start;
-  font-size: 0.9rem;
-  color: #333;
+  font-size: 0.87rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  background: var(--color-surface-muted);
 }
 
 .jd-benefit-icon {
@@ -188,101 +245,110 @@
 
 .jd-skills {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   margin-top: 0.75rem;
 }
 
 .jd-skill-tag {
-  background: #eeecfc;
-  color: #5b4fe0;
-  font-size: 0.85rem;
+  background: var(--color-accent-dim);
+  color: var(--color-accent-hover);
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  border: 1px solid var(--color-accent-border);
+  letter-spacing: 0.01em;
 }
 
-/* Footer */
+/* ── Footer ── */
 .jd-footer {
   display: flex;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  border-top: 1px solid #eee;
-  background: white;
+  gap: 0.75rem;
+  padding: 1rem 1.4rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
 }
 
 .jd-save-btn {
   flex: 1;
-  background: rgb(226, 226, 226);
-  border: none;
-  border-radius: 8px;
-  padding: 0.9rem;
+  background: var(--color-surface-muted);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 0.8rem;
   font-weight: 600;
-  font-size: 1rem;
-  color: #333;
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  box-shadow: 0 2px 4px var(--pill-active-color-rgb, 0.2);
-  margin-right: 0.5rem;
-  transition: all 0.2s ease-in-out;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast),
+    color var(--t-fast);
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .jd-save-btn:hover {
-  background: var(--pill-active-color);
-  border-color: #ccc;
-  transform: translateY(-1px) scale(1.02);
+  background: var(--color-surface-dark);
+  border-color: var(--color-surface-dark);
   color: white;
 }
 
 .jd-save-btn .jd-bookmark-icon {
-  margin-left: 0.5rem;
-  font-size: 1.1rem;
-  color: var(--pill-active-color);
-  transition: all 0.2s ease-in-out;
-  justify-content: center;
-  align-items: center;
-  vertical-align: -3px;
-  transition: all 0.2s ease-in-out;
-}
-
-.jd-save-btn:hover .jd-bookmark-icon {
-  color: white;
+  font-size: 1.05rem;
+  transition: color var(--t-fast);
 }
 
 .jd-save-btn.active,
 .jd-save-btn.active .jd-bookmark-icon {
-  background: var(--pill-active-color);
+  background: var(--color-surface-dark);
+  border-color: var(--color-surface-dark);
   color: white;
 }
 
 .jd-apply-btn {
   flex: 2;
-  background: var(--cta-color);
+  background: var(--color-accent);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 0.9rem;
+  border-radius: var(--radius-md);
+  padding: 0.8rem;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: 0 2px 4px var(--cta-color-rgb, 0.2);
-  transition: all 0.2s ease-in-out;
+  transition:
+    background-color var(--t-fast),
+    transform var(--t-fast);
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .jd-apply-btn:hover {
-  background: var(--pill-active-color );
-  transform: translateY(-1px) scale(1.02);
-  color: white;
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+.jd-apply-btn:active {
+  transform: translateY(0);
 }
 
 .jd-apply-btn .jd-arrow-icon {
-  margin-left: 0.2rem;
-  font-size: 1.2rem;
-  vertical-align: -3px;
-  transition: transform 0.3s ease-in-out;
+  font-size: 1.1rem;
+  vertical-align: -2px;
+  transition: transform var(--t-fast);
 }
 
 .jd-apply-btn:hover .jd-arrow-icon {
-  transform: translateX(4px);
+  transform: translateX(3px);
 }
 
 @media (max-width: 600px) {
@@ -290,8 +356,13 @@
     height: 100vh;
     border-radius: 0;
   }
+
   .jd-two-col,
   .jd-benefits-grid {
     grid-template-columns: 1fr;
+  }
+
+  .jd-title {
+    font-size: 1.35rem;
   }
 }

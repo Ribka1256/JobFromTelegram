@@ -1,57 +1,114 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:wght@100..900&family=Unbounded:wght@200..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Anta&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
+/* =====================================================
+   index.css — JobFeed v2 Design System
+   Single source of truth for all design tokens.
+   Fonts: Syne (headlines) + Plus Jakarta Sans (body)
+   ===================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* ── Design Tokens ─────────────────────────────────── */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  /* Typography */
+  --font-heading: 'Syne', sans-serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+  --font-logo:    'Syne', sans-serif;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: grey;
+  /* Keep legacy aliases for files that reference them */
+  --headline-font: var(--font-heading);
+  --body-font:     var(--font-body);
+  --logo-font:     var(--font-logo);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
+  /* ── Backgrounds ── */
+  --color-bg:            #EEF1F6;
+  --color-surface:       #FFFFFF;
+  --color-surface-muted: #F5F7FA;
+  --color-surface-dark:  #0F1E38;
+  --color-surface-dark-hover: #0A1728;
+
+  /* Legacy aliases */
+  --background-color: var(--color-bg);
+  --navBar-bgColor:   var(--color-surface);
+
+  /* ── Brand ── */
+  --color-primary:       #14243f;
+  --color-primary-hover: #1a3060;
+  --color-accent:        #18AAAE;
+  --color-accent-hover:  #0d9499;
+  --color-accent-dim:    rgba(24, 170, 174, 0.1);
+  --color-accent-border: rgba(24, 170, 174, 0.22);
+
+  /* Legacy aliases */
+  --cta-color:       var(--color-accent);
+  --cta-hover-color: var(--color-accent-hover);
+  --pill-color:      var(--color-primary);
+  --pill-active-color:   #045A68;
+  --pill-hover-color:    rgba(2, 136, 141, 0.85);
+
+  /* ── Text ── */
+  --color-text:           #0C1B33;
+  --color-text-secondary: #4A5568;
+  --color-text-muted:     #8796A8;
+  --color-text-inverse:   #FFFFFF;
+
+  /* Legacy aliases */
+  --headline-color: var(--color-text);
+  --logoText-color: var(--color-primary);
+  --hamburger:      var(--color-primary);
+
+  /* ── Borders ── */
+  --color-border:       rgba(14, 30, 60, 0.09);
+  --color-border-strong:rgba(14, 30, 60, 0.18);
+
+  /* ── Feedback ── */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error:   #dc2626;
+
+  /* ── Radius ── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-pill: 100px;
+
+  /* ── Shadows — no gradients, clean elevation ── */
+  --shadow-sm:        0 1px 3px rgba(14,30,60,0.07), 0 1px 2px rgba(14,30,60,0.04);
+  --shadow-md:        0 3px 10px rgba(14,30,60,0.1);
+  --shadow-card:      0 2px 8px rgba(14,30,60,0.1);
+  --shadow-card-hover:0 6px 22px rgba(14,30,60,0.18);
+  --shadow-navbar:    0 1px 0 var(--color-border), 0 2px 8px rgba(14,30,60,0.05);
+  --shadow-modal:     0 10px 40px rgba(14,30,60,0.18), 0 2px 8px rgba(14,30,60,0.1);
+
+  /* ── Transitions ── */
+  --t-fast:   150ms ease;
+  --t-normal: 220ms ease;
+  --t-slow:   350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Global rendering */
+  font-synthesis:          none;
+  text-rendering:          optimizeLegibility;
+  -webkit-font-smoothing:  antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --headline-font: "Michroma", sans-serif;
-  --body-font: "Montserrat", sans-serif;
-  --logo-font: "Anta", sans-serif;
-
-  --navBar-bgColor: #F0ECEC;
-  --logoText-color: #14243f;
-  --hamburger: #14243f;
-
-  --background-color: #C9C6C6;
-  --headline-color: #0C203D;
-  --body-color: #3f3e3ee7;
-  --cta-color: #18AAAE;
-  --cta-hover-color: #0eb5bb;
-  --pill-color: #14243f;
-  --pill-active-color: #045A68;
-  --pill-hover-color: #02888dd9;
-
+  color-scheme: light;
 }
 
-* {
+/* ── Reset ──────────────────────────────────────────── */
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html,
-body {
+html, body {
   overflow-x: hidden;
-  font-family: var(--body-font);
+  font-family: var(--font-body);
+  color: var(--color-text);
+  line-height: 1.5;
 }
 
 body {
-  margin: 0;
   width: 100%;
   min-height: 100vh;
-  position: relative;
+  background-color: var(--color-bg);
 }
 
 #root {
@@ -59,51 +116,39 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
+  background-color: var(--color-bg);
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #454df7;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  color: inherit;
+  text-decoration: none;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-family: var(--font-body);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* ── Global page-entry animation ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
-  a:hover {
-    color: #747bff;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  button {
-    background-color: #f9f9f9;
-  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bookmarkPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.22); }
+  70%  { transform: scale(0.92); }
+  100% { transform: scale(1); }
 }
